@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import ItemList from '../components/products/ItemList.jsx'
 
-const categories = ['Todos', 'Perifericos', 'Audio', 'Setup', 'Rol', 'Coleccion']
+const categories = ['Todos', 'Perifericos', 'Setup', 'Rol', 'Coleccion']
 
 function ItemListContainer() {
   const [products, setProducts] = useState([])
