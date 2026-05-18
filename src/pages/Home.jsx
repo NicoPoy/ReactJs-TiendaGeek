@@ -4,7 +4,7 @@ function Home() {
   return (
     <section className="hero">
       <div className="hero-content">
-        <span className="eyebrow">Tienda geek</span>
+        <span className="eyebrow">Bienvenido</span>
         <img
           className="hero-logo"
           src="/images/universo-geek-logo.png"

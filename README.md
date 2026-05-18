@@ -10,6 +10,9 @@ con IA para esta pagina.
 Las imagenes de productos se guardan localmente en `public/images` y se
 referencian desde `productos.json`.
 
+Los productos y sus descripciones fueron tomados de referencias disponibles en
+internet y adaptados para esta entrega.
+
 ## Instalacion
 
 ```bash

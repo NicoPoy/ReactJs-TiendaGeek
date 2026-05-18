@@ -1,33 +1,33 @@
 [
   {
     "id": 1,
-    "name": "Teclado mecanico RGB",
+    "name": "Logitech PRO X 60 Lightspeed Wireless White",
     "category": "Perifericos",
     "price": 120500,
     "stock": 12,
     "image": "/images/teclado-rgb.jpg",
-    "description": "Teclado compacto con iluminacion RGB y switches mecanicos para gaming y escritura.",
-    "details": "Ideal para setups gamer o escritorios de estudio. Tiene formato compacto, retroiluminacion y una respuesta firme para jugar o programar."
+    "description": "Teclado compacto inalambrico con iluminacion RGB y formato 60%.",
+    "details": "Teclado gamer Logitech PRO X 60 Lightspeed Wireless White, compacto, inalambrico y pensado para setups modernos, partidas competitivas y escritorios minimalistas."
   },
   {
     "id": 2,
-    "name": "Mouse gamer precision",
+    "name": "Logitech G203 Lightsync Blue",
     "category": "Perifericos",
     "price": 80500,
     "stock": 18,
     "image": "/images/mouse-gamer.jpg",
-    "description": "Mouse liviano con sensor preciso, pensado para partidas largas y uso diario.",
-    "details": "Su diseno ergonomico permite buen agarre y movimientos rapidos. Funciona perfecto junto a un mousepad amplio."
+    "description": "Mouse liviano con RGB, sensor preciso y diseno comodo para gaming.",
+    "details": "Mouse gamer Logitech G203 Lightsync Blue con sensor preciso, iluminacion RGB y diseno comodo para partidas largas, estudio o uso diario."
   },
   {
     "id": 3,
-    "name": "Auriculares para setup",
+    "name": "Wireless Logitech G733 Lightspeed RGB",
     "category": "Perifericos",
     "price": 175500,
     "stock": 10,
     "image": "/images/headset-led.jpg",
-    "description": "Auriculares livianos para escritorio, musica, estudio y sesiones de juego casual.",
-    "details": "Suman color al setup y son una buena opcion para escritorios compactos, home office o zona de estudio."
+    "description": "Auriculares inalambricos con RGB, vincha liviana y sonido envolvente.",
+    "details": "Auriculares inalambricos Wireless Logitech G733 Lightspeed RGB, comodos para jugar, escuchar musica, estudiar o completar un setup gamer con estilo."
   },
   {
     "id": 4,
@@ -98,5 +98,125 @@
     "image": "/images/lamparas-minecraft.jpg",
     "description": "Lamparas LED de Minecraft.",
     "details": "Lamparas LED inspiradas en el universo de Minecraft, con disenos pixelados y luces de colores que crean un ambiente gamer muy llamativo. Ideales para decorar escritorios, habitaciones, setups de PC o espacios tematicos."
+  },
+  {
+    "id": 11,
+    "name": "Control Xbox One",
+    "category": "Perifericos",
+    "price": 95000,
+    "stock": 6,
+    "image": "/images/control-xbox-one.jpg",
+    "description": "Joystick inalambrico para consola y PC con agarre comodo.",
+    "details": "Control Xbox One con diseno ergonomico, botones precisos y compatibilidad ideal para jugar en consola o PC. Perfecto para partidas casuales, cooperativas y sesiones largas."
+  },
+  {
+    "id": 12,
+    "name": "DualSense PS5",
+    "category": "Perifericos",
+    "price": 140000,
+    "stock": 5,
+    "image": "/images/dualsense-ps5.jpg",
+    "description": "Joystick DualSense con respuesta haptica y estilo moderno.",
+    "details": "Control DualSense PS5 con diseno comodo, gatillos adaptativos y respuesta haptica para una experiencia de juego mas inmersiva. Ideal para consola, PC y setups gamer."
+  },
+  {
+    "id": 13,
+    "name": "Silla para escritorio",
+    "category": "Setup",
+    "price": 185000,
+    "stock": 4,
+    "image": "/images/silla-escritorio.jpg",
+    "description": "Silla comoda para escritorio, estudio y setup gamer.",
+    "details": "Silla para escritorio con diseno ergonomico, respaldo amplio y estilo moderno. Ideal para trabajar, estudiar o jugar durante varias horas con mayor comodidad."
+  },
+  {
+    "id": 14,
+    "name": "Escritorio gamer",
+    "category": "Setup",
+    "price": 220000,
+    "stock": 3,
+    "image": "/images/escritorio-gamer.jpg",
+    "description": "Escritorio amplio para PC, perifericos y accesorios de setup.",
+    "details": "Escritorio funcional para armar una estacion gamer o de trabajo, con espacio para monitor, teclado, mouse, controles y objetos decorativos."
+  },
+  {
+    "id": 15,
+    "name": "Tira Led 5050 Rollo 5 Metros RGB",
+    "category": "Setup",
+    "price": 28500,
+    "stock": 12,
+    "image": "/images/tira-led-5050.jpg",
+    "description": "Tira LED RGB de 5 metros para iluminar escritorios y habitaciones.",
+    "details": "Tira Led 5050 Rollo 5 Metros RGB ideal para decorar setups, estantes, escritorios o espacios gamer con luces de colores personalizables."
+  },
+  {
+    "id": 16,
+    "name": "Darth Maul Star Wars Iron Studios",
+    "category": "Coleccion",
+    "price": 135000,
+    "stock": 4,
+    "image": "/images/darth-maul-iron-studios.webp",
+    "description": "Figura coleccionable Darth Maul de Iron Studios.",
+    "details": "Figura Darth Maul Star Wars Iron Studios con gran nivel de detalle, pose de exhibicion y acabado premium. Ideal para vitrinas, repisas y coleccionistas de figuras de saga."
+  },
+  {
+    "id": 17,
+    "name": "Figura Vegeta Sentado",
+    "category": "Coleccion",
+    "price": 58000,
+    "stock": 7,
+    "image": "/images/figura-vegeta-sentado.webp",
+    "description": "Figura coleccionable de Vegeta en pose sentado.",
+    "details": "Figura Vegeta Sentado con estilo decorativo, colores intensos y formato ideal para escritorios, repisas o vitrinas de coleccionistas de anime."
+  },
+  {
+    "id": 18,
+    "name": "Figura Batman",
+    "category": "Coleccion",
+    "price": 42000,
+    "stock": 8,
+    "image": "/images/figura-batman.jpg",
+    "description": "Figura articulada de Batman para coleccion y juego.",
+    "details": "Figura Batman con diseno clasico, formato articulado y tamano ideal para coleccionistas, fanaticos de superheroes o decoracion de espacios geek."
+  },
+  {
+    "id": 19,
+    "name": "Figura Superman",
+    "category": "Coleccion",
+    "price": 44000,
+    "stock": 8,
+    "image": "/images/figura-superman.jpg",
+    "description": "Figura coleccionable de Superman con pose heroica.",
+    "details": "Figura Superman con detalles de traje, postura de accion y presencia ideal para vitrinas, repisas, escritorios o colecciones de superheroes."
+  },
+  {
+    "id": 20,
+    "name": "Mcfarlane Figura Estatua Marvel Spiderman Inspired Comic #6",
+    "category": "Coleccion",
+    "price": 115000,
+    "stock": 5,
+    "image": "/images/figura-spiderman-mcfarlane.webp",
+    "description": "Estatua coleccionable de Spiderman inspirada en comic.",
+    "details": "Mcfarlane Figura Estatua Marvel Spiderman Inspired Comic #6 con pose dinamica, base de exhibicion y terminacion pensada para coleccionistas de comics y superheroes."
+  },
+  {
+    "id": 21,
+    "name": "Torre Para Tirar Dados RPG Color Dorado Antiguo",
+    "category": "Rol",
+    "price": 52000,
+    "stock": 5,
+    "image": "/images/torre-tira-dados-dorado.webp",
+    "description": "Torre tira dados con acabado dorado antiguo para partidas de rol.",
+    "details": "Torre para tirar dados RPG con estilo dorado antiguo, ideal para mesas de rol, juegos de estrategia y partidas donde se busca mantener las tiradas ordenadas y con presencia tematica."
+  },
+  {
+    "id": 22,
+    "name": "Kit 10 Miniaturas",
+    "category": "Rol",
+    "price": 39000,
+    "stock": 8,
+    "image": "/images/kit-miniaturas-rpg.webp",
+    "description": "Kit de 10 miniaturas para partidas de rol y juegos de mesa.",
+    "details": "Set de 10 miniaturas para representar personajes, enemigos o criaturas en partidas de rol. Ideal para campanas de fantasia, mapas de batalla y coleccionistas."
   }
 ]

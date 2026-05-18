@@ -1,11 +1,11 @@
 const team = [
   {
-    name: 'Nicolas Poy Peters',
+    name: 'Nicolás',
     role: 'Atencion personalizada',
     email: 'nicolas@univgeek.com',
   },
   {
-    name: 'Lourdes Baez',
+    name: 'Lourdes',
     role: 'Gestion de pedidos',
     email: 'lourdes@univgeek.com',
   },
