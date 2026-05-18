@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "name": "Teclado mecanico RGB",
+    "category": "Perifericos",
+    "price": 120500,
+    "stock": 12,
+    "image": "/images/teclado-rgb.jpg",
+    "description": "Teclado compacto con iluminacion RGB y switches mecanicos para gaming y escritura.",
+    "details": "Ideal para setups gamer o escritorios de estudio. Tiene formato compacto, retroiluminacion y una respuesta firme para jugar o programar."
+  },
+  {
+    "id": 2,
+    "name": "Mouse gamer precision",
+    "category": "Perifericos",
+    "price": 80500,
+    "stock": 18,
+    "image": "/images/mouse-gamer.jpg",
+    "description": "Mouse liviano con sensor preciso, pensado para partidas largas y uso diario.",
+    "details": "Su diseno ergonomico permite buen agarre y movimientos rapidos. Funciona perfecto junto a un mousepad amplio."
+  },
+  {
+    "id": 3,
+    "name": "Auriculares para setup",
+    "category": "Audio",
+    "price": 175500,
+    "stock": 10,
+    "image": "/images/headset-led.jpg",
+    "description": "Auriculares livianos para escritorio, musica, estudio y sesiones de juego casual.",
+    "details": "Suman color al setup y son una buena opcion para escritorios compactos, home office o zona de estudio."
+  },
+  {
+    "id": 4,
+    "name": "Lampara de escritorio",
+    "category": "Setup",
+    "price": 35900,
+    "stock": 15,
+    "image": "/images/lampara-led.jpg",
+    "description": "Lampara de escritorio con luz calida para crear ambiente gamer sin saturar el espacio.",
+    "details": "Perfecta para escritorio, mesa de rol o zona de lectura. Aporta iluminacion puntual y un look sobrio."
+  },
+  {
+    "id": 5,
+    "name": "Set de dados RPG",
+    "category": "Rol",
+    "price": 16400,
+    "stock": 22,
+    "image": "/images/dados-rpg-real.jpg",
+    "description": "Set de dados para partidas de rol, aventuras de mesa y colecciones geek.",
+    "details": "Incluye dados multisided para campanas de fantasia, one-shots y juegos de mesa narrativos."
+  },
+  {
+    "id": 6,
+    "name": "Mousepad XL RGB",
+    "category": "Setup",
+    "price": 19800,
+    "stock": 16,
+    "image": "/images/mousepad-xl.jpg",
+    "description": "Mousepad XL RGB.",
+    "details": "Mousepad extendido con iluminacion RGB, superficie amplia para teclado y mouse, y base antideslizante para sesiones largas de juego o trabajo."
+  },
+  {
+    "id": 7,
+    "name": "Figura Darth Vader",
+    "category": "Coleccion",
+    "price": 86000,
+    "stock": 5,
+    "image": "/images/figura-darth-vader.jpg",
+    "description": "Figura coleccionable Darth Vader - Duel Effect Version.",
+    "details": "Imponente figura de Darth Vader inspirada en Star Wars, con diseno detallado, acabado premium y efectos visuales de duelo con sable de luz. Ideal para fanaticos, coleccionistas y exhibicion en vitrinas o espacios tematicos."
+  },
+  {
+    "id": 8,
+    "name": "Figura Gogeta SSJ 4 (Dragon Ball GT)",
+    "category": "Coleccion",
+    "price": 50000,
+    "stock": 9,
+    "image": "/images/figura-gogeta-ssj4.png",
+    "description": "Figura coleccionable Gogeta Super Saiyan 4.",
+    "details": "Figura estilo chibi de Gogeta Super Saiyan 4, con colores vibrantes, gran nivel de detalle y pose de combate. Ideal para fanaticos de Dragon Ball, coleccionistas de anime o para decorar escritorios, repisas y vitrinas."
+  },
+  {
+    "id": 9,
+    "name": "Bandeja tira dados de madera - Game On",
+    "category": "Rol",
+    "price": 64000,
+    "stock": 2,
+    "image": "/images/bandeja-tira-dados-game-on.jpg",
+    "description": "Bandeja tira dados.",
+    "details": "Bandeja tira dados con diseno en madera y superficie acolchada, ideal para partidas de rol, juegos de mesa y coleccionistas. Ayuda a mantener los dados ordenados, evita golpes en la mesa y aporta un estilo tematico y elegante a cada partida."
+  },
+  {
+    "id": 10,
+    "name": "Lamparas decorativas estilo Minecraft",
+    "category": "Setup",
+    "price": 180000,
+    "stock": 2,
+    "image": "/images/lamparas-minecraft.jpg",
+    "description": "Lamparas LED de Minecraft.",
+    "details": "Lamparas LED inspiradas en el universo de Minecraft, con disenos pixelados y luces de colores que crean un ambiente gamer muy llamativo. Ideales para decorar escritorios, habitaciones, setups de PC o espacios tematicos."
+  }
+]
