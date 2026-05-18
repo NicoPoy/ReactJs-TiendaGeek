@@ -64,9 +64,21 @@ img {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: #f8fafc;
   font-size: 1.35rem;
   font-weight: 800;
+}
+
+.brand img {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(94, 234, 212, 0.24);
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: 28% 50%;
 }
 
 .nav-links {
@@ -121,8 +133,8 @@ img {
   min-height: calc(100vh - 72px);
   align-items: center;
   background:
-    linear-gradient(90deg, rgba(7, 10, 18, 0.9), rgba(7, 10, 18, 0.28)),
-    url("/images/hero-setup.jpg")
+    linear-gradient(90deg, rgba(7, 10, 18, 0.7), rgba(7, 10, 18, 0.1)),
+    url("/images/home-background.png")
       center / cover;
   color: #fff;
 }
@@ -178,6 +190,24 @@ img {
   margin: 22px 0 28px;
   color: #eef4ff;
   font-size: 1.2rem;
+}
+
+.hero-logo {
+  width: min(680px, 100%);
+  max-height: 280px;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .button {
@@ -413,7 +443,7 @@ img {
 
 .site-footer {
   display: grid;
-  grid-template-columns: minmax(260px, 0.9fr) minmax(240px, 360px);
+  grid-template-columns: minmax(240px, 0.65fr) minmax(0, 1.35fr);
   gap: 28px;
   align-items: start;
   border-top: 1px solid rgba(148, 163, 184, 0.18);
@@ -433,10 +463,9 @@ img {
 
 .footer-team {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  justify-self: end;
-  width: min(100%, 360px);
+  width: 100%;
 }
 
 .person-card {

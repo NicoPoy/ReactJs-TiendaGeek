@@ -5,10 +5,15 @@ function Home() {
     <section className="hero">
       <div className="hero-content">
         <span className="eyebrow">Tienda geek</span>
-        <h1>Universo Geek</h1>
+        <img
+          className="hero-logo"
+          src="/images/universo-geek-logo.png"
+          alt="Universo Geek"
+        />
+        <h1 className="sr-only">Universo Geek</h1>
         <p>
-          Accesorios gamer, perifericos, objetos de setup y dados RPG para
-          armar un escritorio con identidad propia.
+          Figuras de coleccion, accesorios gamer, productos para rol y objetos
+          de setup para darle identidad a tu espacio geek.
         </p>
         <Link className="button" to="/productos">
           Ver productos

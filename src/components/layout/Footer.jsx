@@ -4,6 +4,16 @@ const team = [
     role: 'Atencion personalizada',
     email: 'nicolas@univgeek.com',
   },
+  {
+    name: 'Lourdes Baez',
+    role: 'Gestion de pedidos',
+    email: 'lourdes@univgeek.com',
+  },
+  {
+    name: 'Tina',
+    role: 'Soporte de productos',
+    email: 'tina@univgeek.com',
+  },
 ]
 
 function Footer() {
@@ -12,8 +22,8 @@ function Footer() {
       <section>
         <h2>Universo Geek</h2>
         <p>
-          Local especializado en accesorios gamer, perifericos, objetos de setup
-          y productos para mesas de rol.
+          Tienda de figuras de coleccion, accesorios gamer, productos para rol y
+          objetos de setup para fans del universo geek.
         </p>
       </section>
 

@@ -4,19 +4,11 @@ Proyecto de ecommerce geek realizado con React, Vite, React Router DOM y Context
 
 ## Imagenes
 
-Las fotos del proyecto son de Pexels y se usan bajo su licencia gratuita.
-Referencia: https://www.pexels.com/license/
+El logo principal y el background del home fueron creados de forma personalizada
+con IA para esta pagina.
 
-Fuentes usadas:
-
-- https://www.pexels.com/photo/modern-gaming-setup-with-rgb-lighting-28842077/
-- https://www.pexels.com/photo/mechanical-computer-keyboard-671629/
-- https://www.pexels.com/photo/close-up-of-hands-using-a-keyboard-and-mouse-on-a-gaming-setup-with-colorful-lights-7915503/
-- https://www.pexels.com/photo/headphones-on-desk-5877660/
-- https://www.pexels.com/photo/glowing-desk-lamp-19844043/
-- https://www.pexels.com/photo/green-d20-dice-for-tabletop-rpg-gaming-32030732/
-- https://www.pexels.com/photo/modern-gaming-desk-setup-with-rgb-lighting-31018745/
-- https://www.pexels.com/photo/body-kun-1084753/
+Las imagenes de productos se guardan localmente en `public/images` y se
+referencian desde `productos.json`.
 
 ## Instalacion
 

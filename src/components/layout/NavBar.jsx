@@ -5,7 +5,8 @@ function NavBar() {
   return (
     <nav className="navbar">
       <Link className="brand" to="/">
-        Universo Geek
+        <img src="/images/universo-geek-logo.png" alt="" />
+        <span>Universo Geek</span>
       </Link>
 
       <div className="nav-links">
