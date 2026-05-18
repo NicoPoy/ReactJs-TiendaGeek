@@ -5,7 +5,6 @@ Proyecto de ecommerce geek realizado con React, Vite, React Router DOM y Context
 ## Imagenes
 
 El logo principal y el background del home fueron creados de forma personalizada
-con IA para esta pagina.
 
 Las imagenes de productos se guardan localmente en `public/images` y se
 referencian desde `productos.json`.
@@ -33,7 +32,7 @@ Luego abrir la URL que muestra la terminal, normalmente `http://localhost:5173`.
 npm run build
 ```
 
-## Requisitos cubiertos
+## Requisitos
 
 - Estructura de carpetas organizada.
 - Layout con Header, NavBar y Footer.
