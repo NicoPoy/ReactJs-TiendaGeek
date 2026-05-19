@@ -497,6 +497,54 @@ img {
   object-fit: cover;
 }
 
+/* Informacion principal de cada producto dentro del carrito. */
+.cart-item-info {
+  display: grid;
+  gap: 8px;
+}
+
+/* Selector de cantidad del carrito. */
+.quantity-control {
+  display: inline-grid;
+  grid-template-columns: 40px 62px 40px;
+  width: max-content;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* Botones e input del selector comparten altura para evitar saltos visuales. */
+.quantity-control button,
+.quantity-control input {
+  height: 38px;
+  border: 0;
+  background: #fff;
+  color: #111827;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Botones de sumar/restar cantidad. */
+.quantity-control button {
+  cursor: pointer;
+}
+
+.quantity-control button:hover:not(:disabled) {
+  background: #dffbf7;
+}
+
+.quantity-control button:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Input numerico donde tambien se puede escribir una cantidad manualmente. */
+.quantity-control input {
+  border-right: 1px solid #cbd5e1;
+  border-left: 1px solid #cbd5e1;
+}
+
 /* Resumen final del carrito. */
 .cart-summary {
   display: flex;

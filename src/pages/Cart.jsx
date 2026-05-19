@@ -3,7 +3,8 @@ import { useCart } from '../context/CartContext.jsx'
 
 // Cart muestra los productos agregados y permite quitarlos o vaciar el carrito.
 function Cart() {
-  const { cart, clearCart, removeFromCart, totalPrice } = useCart()
+  const { cart, clearCart, removeFromCart, totalPrice, updateCartQuantity } =
+    useCart()
 
   // Si no hay items, se muestra un estado vacio con acceso al catalogo.
   if (cart.length === 0) {
@@ -33,9 +34,35 @@ function Cart() {
         {cart.map((item) => (
           <article className="cart-item" key={item.id}>
             <img src={item.image} alt={item.name} />
-            <div>
+            <div className="cart-item-info">
               <h2>{item.name}</h2>
-              <p>Cantidad: {item.quantity}</p>
+              {/* Controles para modificar cantidad sin superar el stock disponible. */}
+              <div className="quantity-control" aria-label={`Cantidad de ${item.name}`}>
+                <button
+                  type="button"
+                  onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                  disabled={item.quantity <= 1}
+                >
+                  -
+                </button>
+                <input
+                  min="1"
+                  max={item.stock}
+                  type="number"
+                  value={item.quantity}
+                  onChange={(event) =>
+                    updateCartQuantity(item.id, event.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                  disabled={item.quantity >= item.stock}
+                >
+                  +
+                </button>
+              </div>
+              <p>Stock disponible: {item.stock}</p>
               <strong>
                 ${(item.price * item.quantity).toLocaleString('es-AR')}
               </strong>

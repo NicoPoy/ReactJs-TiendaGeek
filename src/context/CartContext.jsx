@@ -8,21 +8,56 @@ export function CartProvider({ children }) {
   // Cada item del carrito guarda los datos del producto y una cantidad.
   const [cart, setCart] = useState([])
 
+  // Normaliza cantidades para evitar decimales, negativos o valores mayores al stock.
+  const getSafeQuantity = (quantity, stock) => {
+    const numericQuantity = Number(quantity)
+    const numericStock = Number(stock)
+
+    if (!Number.isFinite(numericQuantity) || !Number.isFinite(numericStock)) {
+      return 1
+    }
+
+    const wholeQuantity = Math.trunc(numericQuantity)
+    const availableStock = Math.max(Math.trunc(numericStock), 0)
+
+    return Math.min(Math.max(wholeQuantity, 1), availableStock)
+  }
+
   // Agrega un producto. Si ya existe, suma cantidad en lugar de duplicar la card.
   const addToCart = (product, quantity = 1) => {
     setCart((currentCart) => {
+      const availableStock = Number(product.stock)
+
+      if (!Number.isFinite(availableStock) || availableStock <= 0) {
+        return currentCart
+      }
+
       const existingProduct = currentCart.find((item) => item.id === product.id)
 
       if (existingProduct) {
         return currentCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
+            ? {
+                ...item,
+                quantity: getSafeQuantity(item.quantity + quantity, item.stock),
+              }
             : item,
         )
       }
 
-      return [...currentCart, { ...product, quantity }]
+      return [...currentCart, { ...product, quantity: getSafeQuantity(quantity, product.stock) }]
     })
+  }
+
+  // Modifica la cantidad de un item existente respetando siempre el stock disponible.
+  const updateCartQuantity = (productId, quantity) => {
+    setCart((currentCart) =>
+      currentCart.map((item) =>
+        item.id === productId
+          ? { ...item, quantity: getSafeQuantity(quantity, item.stock) }
+          : item,
+      ),
+    )
   }
 
   // Quita un producto completo del carrito usando su id.
@@ -49,6 +84,7 @@ export function CartProvider({ children }) {
     () => ({
       cart,
       addToCart,
+      updateCartQuantity,
       removeFromCart,
       clearCart,
       totalItems,
