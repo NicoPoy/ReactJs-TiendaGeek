@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 
+// Cart muestra los productos agregados y permite quitarlos o vaciar el carrito.
 function Cart() {
   const { cart, clearCart, removeFromCart, totalPrice } = useCart()
 
+  // Si no hay items, se muestra un estado vacio con acceso al catalogo.
   if (cart.length === 0) {
     return (
       <section className="page-section compact-section">
@@ -26,6 +28,7 @@ function Cart() {
         <h1>Productos agregados</h1>
       </div>
 
+      {/* Cada item del carrito se renderiza con cantidad y subtotal. */}
       <div className="cart-list">
         {cart.map((item) => (
           <article className="cart-item" key={item.id}>
@@ -37,6 +40,7 @@ function Cart() {
                 ${(item.price * item.quantity).toLocaleString('es-AR')}
               </strong>
             </div>
+            {/* Quita este producto completo del carrito. */}
             <button
               className="button button-secondary"
               type="button"
@@ -48,6 +52,7 @@ function Cart() {
         ))}
       </div>
 
+      {/* Resumen final del carrito con total y accion para vaciarlo. */}
       <div className="cart-summary">
         <strong>Total: ${totalPrice.toLocaleString('es-AR')}</strong>
         <button className="button button-secondary" type="button" onClick={clearCart}>

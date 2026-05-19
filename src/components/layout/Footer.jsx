@@ -1,3 +1,5 @@
+// Datos de las tarjetas del footer.
+// Se mantienen en un array para renderizar las 3 personas con map.
 const team = [
   {
     name: 'Nicolás',
@@ -19,9 +21,11 @@ const team = [
   },
 ]
 
+// Footer muestra informacion de la empresa y las tarjetas requeridas por la consigna.
 function Footer() {
   return (
     <footer className="site-footer">
+      {/* Bloque institucional de Universo Geek. */}
       <section>
         <h2>Universo Geek</h2>
         <p>
@@ -30,6 +34,7 @@ function Footer() {
         </p>
       </section>
 
+      {/* Tarjetas del equipo. Cada una usa avatar, nombre, rol y mail. */}
       <section className="footer-team" aria-label="Equipo de la empresa">
         {team.map((person) => (
           <article className="person-card" key={person.email}>

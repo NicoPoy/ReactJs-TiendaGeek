@@ -1,3 +1,4 @@
+/* Configuracion visual base de toda la aplicacion. */
 :root {
   color: #e7edf7;
   background: #10141f;
@@ -9,10 +10,12 @@
   text-rendering: optimizeLegibility;
 }
 
+/* Reset minimo para que el layout sea consistente entre navegadores. */
 * {
   box-sizing: border-box;
 }
 
+/* Fondo general gamer sobrio usado en las paginas internas. */
 body {
   margin: 0;
   min-width: 320px;
@@ -21,6 +24,7 @@ body {
     linear-gradient(180deg, #111827 0%, #10141f 46%, #151927 100%);
 }
 
+/* Estilos base para elementos HTML usados en todo el proyecto. */
 a {
   color: inherit;
   text-decoration: none;
@@ -38,12 +42,14 @@ img {
   max-width: 100%;
 }
 
+/* Estructura general: header arriba, contenido flexible y footer abajo. */
 .app-shell {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
 }
 
+/* Header fijo con efecto glass para mantener la navegacion disponible. */
 .site-header {
   position: sticky;
   top: 0;
@@ -53,6 +59,7 @@ img {
   backdrop-filter: blur(14px);
 }
 
+/* Barra principal con marca, links de navegacion y carrito. */
 .navbar {
   display: flex;
   width: min(1120px, calc(100% - 32px));
@@ -63,6 +70,7 @@ img {
   margin: 0 auto;
 }
 
+/* Marca del sitio dentro de la navegacion. */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -72,6 +80,7 @@ img {
   font-weight: 800;
 }
 
+/* Logo compacto de Universo Geek en el header. */
 .brand img {
   width: 42px;
   height: 42px;
@@ -81,12 +90,14 @@ img {
   object-position: 28% 50%;
 }
 
+/* Grupo de enlaces principales. */
 .nav-links {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+/* Estados de navegacion normal, hover y ruta activa. */
 .nav-links a {
   border-radius: 6px;
   color: #cbd5e1;
@@ -100,6 +111,7 @@ img {
   color: #f8fafc;
 }
 
+/* Widget del carrito mostrado dentro de la navbar. */
 .cart-widget {
   display: inline-flex;
   min-width: 118px;
@@ -108,11 +120,13 @@ img {
   gap: 7px;
 }
 
+/* Icono SVG del carrito. */
 .cart-widget svg {
   width: 19px;
   height: 19px;
 }
 
+/* Indicador numerico con la cantidad total de productos agregados. */
 .cart-widget strong {
   display: inline-grid;
   min-width: 24px;
@@ -124,10 +138,12 @@ img {
   font-size: 0.85rem;
 }
 
+/* Contenedor que ocupa el espacio disponible entre header y footer. */
 .main-content {
   flex: 1;
 }
 
+/* Hero del home con background personalizado y capa oscura para legibilidad. */
 .hero {
   display: grid;
   min-height: calc(100vh - 72px);
@@ -139,12 +155,14 @@ img {
   color: #fff;
 }
 
+/* Ancho y espaciado del contenido principal del home. */
 .hero-content {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
   padding: 80px 0 140px;
 }
 
+/* Etiqueta superior usada en home, catalogo, detalle y carrito. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -157,6 +175,7 @@ img {
   text-transform: uppercase;
 }
 
+/* Linea decorativa que acompana la etiqueta superior. */
 .eyebrow::before {
   content: "";
   display: inline-block;
@@ -167,15 +186,18 @@ img {
   box-shadow: 0 0 14px rgba(94, 234, 212, 0.55);
 }
 
+/* Ajuste del color de la etiqueta cuando aparece sobre el hero. */
 .hero .eyebrow {
   color: #5eead4;
 }
 
+/* Brillo de la linea decorativa dentro del hero. */
 .hero .eyebrow::before {
   background: #5eead4;
   box-shadow: 0 0 14px rgba(94, 234, 212, 0.55);
 }
 
+/* Jerarquia de titulos grandes en las distintas paginas. */
 .hero h1,
 .section-heading h1,
 .detail-content h1 {
@@ -185,6 +207,7 @@ img {
   line-height: 0.96;
 }
 
+/* Texto descriptivo principal del home. */
 .hero p {
   max-width: 620px;
   margin: 22px 0 28px;
@@ -192,6 +215,7 @@ img {
   font-size: 1.2rem;
 }
 
+/* Logo grande del home. */
 .hero-logo {
   width: min(680px, 100%);
   max-height: 280px;
@@ -201,6 +225,7 @@ img {
   box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
 }
 
+/* Texto accesible oculto visualmente, usado para reemplazar el h1 grafico. */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -210,6 +235,7 @@ img {
   white-space: nowrap;
 }
 
+/* Boton principal reutilizable para acciones y navegacion. */
 .button {
   display: inline-flex;
   min-height: 44px;
@@ -224,20 +250,24 @@ img {
   padding: 10px 16px;
 }
 
+/* Estado hover del boton principal. */
 .button:hover {
   background: #7dd3fc;
 }
 
+/* Variante secundaria de boton, usada para acciones menos importantes. */
 .button-secondary {
   border-color: #263244;
   background: #1c2433;
   color: #e7edf7;
 }
 
+/* Hover de la variante secundaria. */
 .button-secondary:hover {
   background: #263244;
 }
 
+/* Ancho comun de secciones internas y vista de detalle. */
 .page-section,
 .detail-layout {
   width: min(1120px, calc(100% - 32px));
@@ -245,20 +275,24 @@ img {
   padding: 56px 0;
 }
 
+/* Secciones cortas como carrito vacio o 404. */
 .compact-section {
   min-height: 54vh;
 }
 
+/* Encabezado de secciones internas. */
 .section-heading {
   margin-bottom: 28px;
 }
 
+/* Titulos de secciones internas y detalle de producto. */
 .section-heading h1,
 .detail-content h1 {
   color: #f8fafc;
   font-size: clamp(2rem, 5vw, 4rem);
 }
 
+/* Texto de apoyo bajo los titulos de seccion. */
 .section-heading p {
   max-width: 640px;
   margin: 12px 0 0;
@@ -266,12 +300,14 @@ img {
   font-size: 1.05rem;
 }
 
+/* Grilla responsive del catalogo. */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
   gap: 18px;
 }
 
+/* Botonera de categorias del catalogo. */
 .category-filters {
   display: flex;
   flex-wrap: wrap;
@@ -279,6 +315,7 @@ img {
   margin-bottom: 24px;
 }
 
+/* Botones de filtro por categoria. */
 .category-filters button {
   min-height: 40px;
   border: 1px solid rgba(148, 163, 184, 0.26);
@@ -290,6 +327,7 @@ img {
   padding: 8px 14px;
 }
 
+/* Estado activo y hover de los filtros. */
 .category-filters button.active,
 .category-filters button:hover {
   border-color: #5eead4;
@@ -297,6 +335,7 @@ img {
   color: #f8fafc;
 }
 
+/* Mensaje mostrado cuando una categoria no tiene productos. */
 .empty-category {
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
@@ -307,6 +346,7 @@ img {
   padding: 22px;
 }
 
+/* Card individual de producto. */
 .product-card {
   display: flex;
   flex-direction: column;
@@ -317,6 +357,7 @@ img {
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
 }
 
+/* Imagen de producto: contain evita recortes en fotos con fondos blancos. */
 .product-card img {
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -324,6 +365,7 @@ img {
   object-fit: contain;
 }
 
+/* Contenido textual de la card. El flex permite alinear precio y boton abajo. */
 .product-card-content {
   display: flex;
   flex: 1;
@@ -332,12 +374,14 @@ img {
   padding: 18px;
 }
 
+/* Etiqueta de categoria dentro de cada card. */
 .product-category {
   color: #0f766e;
   font-size: 0.82rem;
   font-weight: 800;
 }
 
+/* Titulos de cards, carrito y tarjetas del footer. */
 .product-card h3,
 .cart-item h2,
 .person-card h3 {
@@ -345,17 +389,20 @@ img {
   color: #111827;
 }
 
+/* Texto secundario dentro de cards y carrito. */
 .product-card p,
 .cart-item p {
   color: #555f70;
 }
 
+/* Texto secundario sobre fondos oscuros. */
 .detail-content p,
 .site-footer p,
 .person-card p {
   color: #b8c2d2;
 }
 
+/* Pie de cada card: precio y link de detalle. */
 .product-card-footer {
   display: flex;
   align-items: center;
@@ -365,22 +412,26 @@ img {
   min-height: 48px;
 }
 
+/* Ancho minimo para que los botones Ver detalle queden alineados visualmente. */
 .product-card-footer .button {
   min-width: 120px;
 }
 
+/* Precios dentro de cards e items del carrito. */
 .product-card-footer strong,
 .cart-item strong {
   color: #111827;
   font-size: 1.15rem;
 }
 
+/* Precios sobre fondos oscuros, como detalle y resumen de carrito. */
 .detail-price,
 .cart-summary strong {
   color: #5eead4;
   font-size: 1.15rem;
 }
 
+/* Layout de la pagina de detalle: imagen a la izquierda y datos a la derecha. */
 .detail-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.85fr);
@@ -388,6 +439,7 @@ img {
   align-items: center;
 }
 
+/* Imagen grande en detalle de producto. */
 .detail-layout > img {
   width: 100%;
   aspect-ratio: 5 / 4;
@@ -397,6 +449,7 @@ img {
   box-shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
 }
 
+/* Columna de datos del detalle. */
 .detail-content {
   display: flex;
   flex-direction: column;
@@ -404,23 +457,27 @@ img {
   gap: 16px;
 }
 
+/* Texto de stock disponible. */
 .stock {
   margin: 0;
   color: #d7deea;
   font-weight: 700;
 }
 
+/* Grupo de acciones en el detalle del producto. */
 .detail-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
+/* Lista vertical de productos agregados al carrito. */
 .cart-list {
   display: grid;
   gap: 14px;
 }
 
+/* Item individual dentro del carrito. */
 .cart-item {
   display: grid;
   grid-template-columns: 120px 1fr auto;
@@ -432,6 +489,7 @@ img {
   padding: 14px;
 }
 
+/* Miniatura del producto en el carrito. */
 .cart-item img {
   width: 120px;
   aspect-ratio: 1;
@@ -439,6 +497,7 @@ img {
   object-fit: cover;
 }
 
+/* Resumen final del carrito. */
 .cart-summary {
   display: flex;
   align-items: center;
@@ -447,6 +506,7 @@ img {
   margin-top: 24px;
 }
 
+/* Mensajes globales de carga, error o estados vacios. */
 .status-message {
   width: min(1120px, calc(100% - 32px));
   margin: 56px auto;
@@ -455,6 +515,7 @@ img {
   font-weight: 700;
 }
 
+/* Footer con informacion de empresa y tarjetas del equipo. */
 .site-footer {
   display: grid;
   grid-template-columns: minmax(240px, 0.65fr) minmax(0, 1.35fr);
@@ -466,15 +527,18 @@ img {
   padding: 36px max(16px, calc((100% - 1120px) / 2));
 }
 
+/* Titulo institucional del footer. */
 .site-footer h2 {
   margin: 0 0 10px;
 }
 
+/* Texto institucional del footer. */
 .site-footer p {
   margin: 0;
   color: #cbd5e1;
 }
 
+/* Grilla de tarjetas de personas. */
 .footer-team {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -482,12 +546,14 @@ img {
   width: 100%;
 }
 
+/* Tarjeta individual de persona. */
 .person-card {
   border: 1px solid #334155;
   border-radius: 8px;
   padding: 14px;
 }
 
+/* Encabezado de persona: avatar y nombre en la misma linea. */
 .person-heading {
   display: flex;
   align-items: center;
@@ -495,6 +561,7 @@ img {
   margin-bottom: 12px;
 }
 
+/* Avatar circular de cada persona del footer. */
 .person-avatar {
   width: 74px;
   height: 74px;
@@ -505,17 +572,20 @@ img {
   box-shadow: 0 0 22px rgba(94, 234, 212, 0.12);
 }
 
+/* Nombre de cada persona. */
 .person-card h3 {
   color: #fff;
   margin: 0;
 }
 
+/* Mail de contacto de cada tarjeta. */
 .person-card a {
   color: #38d6cf;
   font-weight: 700;
   overflow-wrap: anywhere;
 }
 
+/* Ajustes para tablets y celulares. */
 @media (max-width: 780px) {
   .navbar {
     align-items: flex-start;
@@ -565,6 +635,7 @@ img {
   }
 }
 
+/* Ajustes extra para pantallas chicas. */
 @media (max-width: 520px) {
   .product-card-footer,
   .detail-actions {
