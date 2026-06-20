@@ -1,4 +1,6 @@
-﻿@import "./base.css";
+/* Indice global de estilos.
+   Cada archivo CSS agrupa una responsabilidad para mantener el proyecto legible. */
+@import "./base.css";
 @import "./layout.css";
 @import "./home.css";
 @import "./buttons.css";

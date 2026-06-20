@@ -3,6 +3,7 @@ import Seo from '../components/seo/Seo.jsx'
 import { useCart } from '../context/CartContext.jsx'
 
 // Cart muestra los productos agregados y permite quitarlos o vaciar el carrito.
+// Esta ruta esta protegida desde App.jsx para que solo accedan usuarios logueados.
 function Cart() {
   const { cart, clearCart, removeFromCart, totalPrice, updateCartQuantity } =
     useCart()

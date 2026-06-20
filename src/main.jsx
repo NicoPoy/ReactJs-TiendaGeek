@@ -8,7 +8,8 @@ import { CartProvider } from './context/CartContext.jsx'
 import App from './App.jsx'
 import './styles/global.css'
 
-// Punto de entrada de React: conecta la aplicacion con el div #root de index.html.
+// Punto de entrada de React.
+// Aca se conectan los providers globales: router, SEO, autenticacion y carrito.
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>

@@ -1,5 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 
+// CartContext centraliza el carrito para que detalle, navbar y carrito
+// compartan la misma informacion sin pasar props manualmente.
 // Contexto global donde se guarda el carrito y sus acciones.
 const CartContext = createContext()
 
@@ -10,14 +12,18 @@ export function CartProvider({ children }) {
 
   // Normaliza cantidades para evitar decimales, negativos o valores mayores al stock.
   const getSafeQuantity = (quantity, stock) => {
+    // numericQuantity es la cantidad recibida convertida a numero.
     const numericQuantity = Number(quantity)
+    // numericStock es el stock recibido convertido a numero.
     const numericStock = Number(stock)
 
     if (!Number.isFinite(numericQuantity) || !Number.isFinite(numericStock)) {
       return 1
     }
 
+    // wholeQuantity evita decimales dentro del carrito.
     const wholeQuantity = Math.trunc(numericQuantity)
+    // availableStock asegura que el stock nunca sea negativo.
     const availableStock = Math.max(Math.trunc(numericStock), 0)
 
     return Math.min(Math.max(wholeQuantity, 1), availableStock)
@@ -26,12 +32,14 @@ export function CartProvider({ children }) {
   // Agrega un producto. Si ya existe, suma cantidad en lugar de duplicar la card.
   const addToCart = (product, quantity = 1) => {
     setCart((currentCart) => {
+      // availableStock representa el stock disponible del producto a agregar.
       const availableStock = Number(product.stock)
 
       if (!Number.isFinite(availableStock) || availableStock <= 0) {
         return currentCart
       }
 
+      // existingProduct indica si el producto ya esta dentro del carrito.
       const existingProduct = currentCart.find((item) => item.id === product.id)
 
       if (existingProduct) {
@@ -98,6 +106,7 @@ export function CartProvider({ children }) {
 
 // Hook propio para consumir el carrito sin repetir useContext en cada componente.
 export function useCart() {
+  // context contiene el estado y acciones publicadas por CartProvider.
   const context = useContext(CartContext)
 
   // Ayuda a detectar errores si algun componente usa el carrito fuera del Provider.

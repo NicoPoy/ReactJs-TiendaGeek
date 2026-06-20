@@ -7,6 +7,7 @@ import { getProductById } from '../services/productService.js'
 
 // ItemDetailContainer muestra la vista individual de un producto.
 // Usa el parametro :id de la ruta /producto/:id para buscar el item correcto.
+// Si el usuario no esta logueado, ofrece iniciar sesion en lugar de comprar.
 function ItemDetailContainer() {
   // useParams lee valores dinamicos de la URL definidos en App.jsx.
   const { id } = useParams()

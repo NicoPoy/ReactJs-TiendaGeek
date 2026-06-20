@@ -1,6 +1,7 @@
 import Item from './Item.jsx'
 
 // ItemList recibe un array de productos y delega cada card al componente Item.
+// Mantiene separada la grilla del contenido de cada producto.
 function ItemList({ products }) {
   return (
     <div className="product-grid">

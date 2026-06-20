@@ -3,12 +3,13 @@ import ItemList from '../components/products/ItemList.jsx'
 import Seo from '../components/seo/Seo.jsx'
 import { getProducts } from '../services/productService.js'
 
+// ItemListContainer es la pantalla de catalogo.
+// Carga productos desde el servicio, aplica busqueda, categoria y paginacion.
 // Categorias disponibles para filtrar el catalogo.
 // Deben coincidir con los valores category definidos en productos.json.
 const categories = ['Todos', 'Perifericos', 'Setup', 'Rol', 'Coleccion']
 const productsPerPage = 8
 
-// ItemListContainer carga el catalogo desde el JSON local y maneja filtros/estados.
 function ItemListContainer() {
   // products guarda el listado completo recibido desde public/productos.json.
   const [products, setProducts] = useState([])
@@ -33,6 +34,7 @@ function ItemListContainer() {
   }, [selectedCategory, searchTerm])
 
   const filteredProducts = useMemo(() => {
+    // Filtrado derivado: no modifica la lista original de productos.
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
     return products.filter((product) => {

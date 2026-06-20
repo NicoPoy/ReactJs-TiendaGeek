@@ -2,6 +2,7 @@ import { FiShoppingCart } from 'react-icons/fi'
 import { useCart } from '../../context/CartContext.jsx'
 
 // CartWidget vive en la navbar y muestra la cantidad total de productos agregados.
+// Consume CartContext para actualizarse automaticamente.
 function CartWidget() {
   const { totalItems } = useCart()
 

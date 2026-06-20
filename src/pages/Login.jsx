@@ -5,6 +5,8 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import Seo from '../components/seo/Seo.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
+// Login permite iniciar sesion o registrar usuario desde una misma pantalla.
+// Usa AuthContext para trabajar con Firebase real o con el modo demo local.
 function Login() {
   const { isAuthenticated, isFirebaseConfigured, login, register } = useAuth()
   const navigate = useNavigate()

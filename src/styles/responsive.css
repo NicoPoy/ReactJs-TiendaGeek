@@ -124,6 +124,14 @@
     grid-template-columns: 1fr;
   }
 
+  .about-modal-content {
+    text-align: center;
+  }
+
+  .about-modal-heading {
+    justify-content: center;
+  }
+
   .product-card-footer,
   .detail-actions,
   .form-actions,

@@ -12,8 +12,11 @@ import {
   updateProduct,
 } from '../services/productService.js'
 
+// AdminProducts es el panel privado de administracion.
+// Permite listar, crear, editar, eliminar y cargar productos iniciales.
 const categories = ['Perifericos', 'Setup', 'Rol', 'Coleccion']
 
+// Estado inicial compartido por alta y edicion de productos.
 const initialFormData = {
   name: '',
   category: 'Perifericos',
@@ -24,6 +27,8 @@ const initialFormData = {
   details: '',
 }
 
+// styled-components se usa aca para cumplir la consigna sin mezclar
+// estilos puntuales del toolbar con el CSS global.
 const AdminToolbar = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -45,6 +50,7 @@ function AdminProducts() {
 
   const isEditing = Boolean(editingProductId)
 
+  // Ordena la tabla sin modificar el array original guardado en estado.
   const sortedProducts = useMemo(
     () => [...products].sort((a, b) => a.name.localeCompare(b.name)),
     [products],
@@ -77,10 +83,11 @@ function AdminProducts() {
     setEditingProductId(null)
   }
 
+  // Validaciones minimas pedidas para evitar productos incompletos.
   const validateForm = () => {
     if (!formData.name.trim()) return 'El nombre es obligatorio.'
     if (!formData.image.trim()) return 'La URL o ruta de imagen es obligatoria.'
-    if (!formData.description.trim()) return 'La descripción corta es obligatoria.'
+    if (!formData.description.trim()) return 'La descripcion corta es obligatoria.'
     if (!formData.details.trim()) return 'El detalle del producto es obligatorio.'
     if (Number(formData.price) <= 0) return 'El precio debe ser mayor a 0.'
     if (Number(formData.stock) < 0) return 'El stock no puede ser negativo.'
@@ -132,6 +139,7 @@ function AdminProducts() {
   }
 
   const handleEdit = (product) => {
+    // Reutiliza el mismo formulario para editar un producto existente.
     setEditingProductId(product.id)
     setFormData({
       name: product.name,
@@ -169,9 +177,9 @@ function AdminProducts() {
       setError('')
       const seededProducts = await seedProductsFromJson()
       setProducts(seededProducts)
-      setSuccess('Catálogo inicial cargado correctamente.')
+      setSuccess('Catalogo inicial cargado correctamente.')
     } catch {
-      setError('No se pudo cargar el catálogo inicial.')
+      setError('No se pudo cargar el catalogo inicial.')
     } finally {
       setSaving(false)
     }
@@ -185,13 +193,13 @@ function AdminProducts() {
       />
       <div className="section-heading">
         <span className="eyebrow">Panel privado</span>
-        <h1>Gestión de productos</h1>
-        <p>Sesión activa: {user?.email}</p>
+        <h1>Gestion de productos</h1>
+        <p>Sesion activa: {user?.email}</p>
       </div>
 
       {!isFirebaseConfigured && (
         <Alert variant="warning">
-          Modo demo local activo. Cuando configures Firebase, este panel usará
+          Modo demo local activo. Cuando configures Firebase, este panel usara
           Authentication y Firestore.
         </Alert>
       )}
@@ -216,7 +224,7 @@ function AdminProducts() {
           </button>
         </div>
         <button className="button button-secondary" type="button" onClick={logout}>
-          Cerrar sesión
+          Cerrar sesion
         </button>
       </AdminToolbar>
 
@@ -228,7 +236,7 @@ function AdminProducts() {
           </Form.Group>
 
           <Form.Group controlId="category">
-            <Form.Label>Categoría</Form.Label>
+            <Form.Label>Categoria</Form.Label>
             <Form.Select
               name="category"
               value={formData.category}
@@ -276,7 +284,7 @@ function AdminProducts() {
         </Form.Group>
 
         <Form.Group className="mt-3" controlId="description">
-          <Form.Label>Descripción corta</Form.Label>
+          <Form.Label>Descripcion corta</Form.Label>
           <Form.Control
             as="textarea"
             name="description"
@@ -304,7 +312,7 @@ function AdminProducts() {
           </button>
           {isEditing && (
             <button className="button button-secondary" type="button" onClick={resetForm}>
-              Cancelar edición
+              Cancelar edicion
             </button>
           )}
         </div>
@@ -318,7 +326,7 @@ function AdminProducts() {
             <thead>
               <tr>
                 <th>Producto</th>
-                <th>Categoría</th>
+                <th>Categoria</th>
                 <th>Precio</th>
                 <th>Stock</th>
                 <th>Acciones</th>
@@ -367,7 +375,7 @@ function AdminProducts() {
           <Modal.Title>Eliminar producto</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          ¿Confirmás que querés eliminar "{productToDelete?.name}"?
+          Confirmas que queres eliminar "{productToDelete?.name}"?
         </Modal.Body>
         <Modal.Footer>
           <button
@@ -377,7 +385,12 @@ function AdminProducts() {
           >
             Cancelar
           </button>
-          <button className="button button-danger" disabled={saving} type="button" onClick={handleDelete}>
+          <button
+            className="button button-danger"
+            disabled={saving}
+            type="button"
+            onClick={handleDelete}
+          >
             Eliminar
           </button>
         </Modal.Footer>

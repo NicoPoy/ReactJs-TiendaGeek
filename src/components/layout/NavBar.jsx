@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import CartWidget from '../ui/CartWidget.jsx'
 
 // NavBar permite moverse entre las rutas principales sin recargar la pagina.
+// Los links cambian segun el estado de autenticacion del usuario.
 function NavBar() {
   const { isAuthenticated } = useAuth()
 

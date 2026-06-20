@@ -31,3 +31,12 @@
   font-size: 1.05rem;
 }
 
+/* Mensajes globales de carga, error o estados vacios. */
+.status-message {
+  width: min(1120px, calc(100% - 32px));
+  margin: 56px auto;
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
