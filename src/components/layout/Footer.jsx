@@ -2,7 +2,7 @@
 // Se mantienen en un array para renderizar las 3 personas con map.
 const team = [
   {
-    name: 'Nicolás',
+    name: 'Nicolas',
     role: 'Atencion personalizada',
     email: 'nicolas@univgeek.com',
     image: '/images/perfil-nicolas.png',

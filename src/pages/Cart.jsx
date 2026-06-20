@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Seo from '../components/seo/Seo.jsx'
 import { useCart } from '../context/CartContext.jsx'
 
 // Cart muestra los productos agregados y permite quitarlos o vaciar el carrito.
@@ -10,6 +11,10 @@ function Cart() {
   if (cart.length === 0) {
     return (
       <section className="page-section compact-section">
+        <Seo
+          title="Carrito"
+          description="Carrito de compras de Universo Geek."
+        />
         <div className="section-heading">
           <span className="eyebrow">Carrito</span>
           <h1>Tu carrito esta vacio</h1>
@@ -24,6 +29,7 @@ function Cart() {
 
   return (
     <section className="page-section">
+      <Seo title="Carrito" description="Productos agregados al carrito de compras." />
       <div className="section-heading">
         <span className="eyebrow">Carrito</span>
         <h1>Productos agregados</h1>

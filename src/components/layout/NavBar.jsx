@@ -1,8 +1,12 @@
 import { Link, NavLink } from 'react-router-dom'
+import { FiLock, FiLogIn } from 'react-icons/fi'
+import { useAuth } from '../../context/AuthContext.jsx'
 import CartWidget from '../ui/CartWidget.jsx'
 
 // NavBar permite moverse entre las rutas principales sin recargar la pagina.
 function NavBar() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <nav className="navbar">
       {/* Marca del sitio: vuelve al home y muestra el logo compacto. */}
@@ -17,10 +21,23 @@ function NavBar() {
           Inicio
         </NavLink>
         <NavLink to="/productos">Productos</NavLink>
-        <NavLink to="/carrito">
-          {/* CartWidget muestra el icono y la cantidad total del carrito. */}
-          <CartWidget />
-        </NavLink>
+        {isAuthenticated ? (
+          <>
+            <NavLink to="/admin">
+              <FiLock aria-hidden="true" />
+              Panel
+            </NavLink>
+            <NavLink to="/carrito">
+              {/* CartWidget muestra el icono y la cantidad total del carrito. */}
+              <CartWidget />
+            </NavLink>
+          </>
+        ) : (
+          <NavLink to="/login">
+            <FiLogIn aria-hidden="true" />
+            Acceso
+          </NavLink>
+        )}
       </div>
     </nav>
   )
