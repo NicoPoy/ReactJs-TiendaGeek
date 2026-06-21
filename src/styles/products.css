@@ -1,0 +1,125 @@
+﻿/* Card individual de producto. */
+.product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 8px;
+  background: #f8fafc;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+}
+
+/* Imagen de producto: contain evita recortes en fotos con fondos blancos. */
+.product-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #fff;
+  object-fit: contain;
+}
+
+/* Contenido textual de la card. El flex permite alinear precio y boton abajo. */
+.product-card-content {
+  display: flex;
+  flex: 1;
+  min-height: 250px;
+  flex-direction: column;
+  padding: 18px;
+}
+
+/* Etiqueta de categoria dentro de cada card. */
+.product-category {
+  color: #0f766e;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+/* Titulos de cards, carrito y tarjetas del footer. */
+.product-card h3,
+.cart-item h2,
+.person-card h3 {
+  margin: 8px 0;
+  color: #111827;
+}
+
+/* Texto secundario dentro de cards y carrito. */
+.product-card p,
+.cart-item p {
+  color: #555f70;
+}
+
+/* Texto secundario sobre fondos oscuros. */
+.detail-content p,
+.site-footer p,
+.person-card p {
+  color: #b8c2d2;
+}
+
+/* Pie de cada card: precio y link de detalle. */
+.product-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  min-height: 48px;
+}
+
+/* Ancho minimo para que los botones Ver detalle queden alineados visualmente. */
+.product-card-footer .button {
+  min-width: 120px;
+}
+
+/* Precios dentro de cards e items del carrito. */
+.product-card-footer strong,
+.cart-item strong {
+  color: #111827;
+  font-size: 1.15rem;
+}
+
+/* Precios sobre fondos oscuros, como detalle y resumen de carrito. */
+.detail-price,
+.cart-summary strong {
+  color: #5eead4;
+  font-size: 1.15rem;
+}
+
+/* Layout de la pagina de detalle: imagen a la izquierda y datos a la derecha. */
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.85fr);
+  gap: 34px;
+  align-items: center;
+}
+
+/* Imagen grande en detalle de producto. */
+.detail-layout > img {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  border-radius: 8px;
+  background: #fff;
+  object-fit: contain;
+  box-shadow: 0 18px 52px rgba(0, 0, 0, 0.22);
+}
+
+/* Columna de datos del detalle. */
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Texto de stock disponible. */
+.stock {
+  margin: 0;
+  color: #d7deea;
+  font-weight: 700;
+}
+
+/* Grupo de acciones en el detalle del producto. */
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+

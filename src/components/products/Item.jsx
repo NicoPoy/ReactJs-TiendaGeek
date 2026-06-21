@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 // Item representa una card individual del catalogo.
 // Recibe todos los datos desde props para poder reutilizarse con cualquier producto.
+// La navegacion al detalle usa el id del producto en la URL.
 function Item({ product }) {
   return (
     <article className="product-card">

@@ -1,0 +1,42 @@
+﻿/* Ancho comun de secciones internas y vista de detalle. */
+.page-section,
+.detail-layout {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0;
+}
+
+/* Secciones cortas como carrito vacio o 404. */
+.compact-section {
+  min-height: 54vh;
+}
+
+/* Encabezado de secciones internas. */
+.section-heading {
+  margin-bottom: 28px;
+}
+
+/* Titulos de secciones internas y detalle de producto. */
+.section-heading h1,
+.detail-content h1 {
+  color: #f8fafc;
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+/* Texto de apoyo bajo los titulos de seccion. */
+.section-heading p {
+  max-width: 640px;
+  margin: 12px 0 0;
+  color: #b8c2d2;
+  font-size: 1.05rem;
+}
+
+/* Mensajes globales de carga, error o estados vacios. */
+.status-message {
+  width: min(1120px, calc(100% - 32px));
+  margin: 56px auto;
+  color: #cbd5e1;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+

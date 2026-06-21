@@ -4,6 +4,7 @@ import Header from './Header.jsx'
 
 // Layout define la estructura comun de todas las paginas.
 // El contenido variable entra en Outlet segun la ruta activa.
+// Esto evita repetir Header/Footer en cada page.
 function Layout() {
   return (
     <div className="app-shell">

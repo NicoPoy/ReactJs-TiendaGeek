@@ -1,0 +1,48 @@
+﻿/* Boton principal reutilizable para acciones y navegacion. */
+.button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #5eead4;
+  border-radius: 6px;
+  background: #5eead4;
+  color: #0f172a;
+  cursor: pointer;
+  font-weight: 800;
+  padding: 10px 16px;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+/* Estado hover del boton principal. */
+.button:hover {
+  background: #7dd3fc;
+}
+
+/* Variante secundaria de boton, usada para acciones menos importantes. */
+.button-secondary {
+  border-color: #263244;
+  background: #1c2433;
+  color: #e7edf7;
+}
+
+/* Hover de la variante secundaria. */
+.button-secondary:hover {
+  background: #263244;
+}
+
+.button-danger {
+  border-color: #ef4444;
+  background: #ef4444;
+  color: #fff;
+}
+
+.button-danger:hover {
+  background: #dc2626;
+}
+

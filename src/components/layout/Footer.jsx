@@ -1,11 +1,22 @@
+import { useState } from 'react'
+import { Modal } from 'react-bootstrap'
+import { FaGithub, FaLinkedin } from 'react-icons/fa'
+
+// Footer concentra datos institucionales y tarjetas del equipo.
+// Nicolas tiene un modal "Sobre mi"; las otras tarjetas muestran el boton deshabilitado.
 // Datos de las tarjetas del footer.
 // Se mantienen en un array para renderizar las 3 personas con map.
 const team = [
   {
-    name: 'Nicolás',
+    name: 'Nicolas',
     role: 'Atencion personalizada',
-    email: 'nicolas@univgeek.com',
+    email: 'nicolaspoy98@gmail.com',
     image: '/images/perfil-nicolas.png',
+    linkedin: 'https://www.linkedin.com/in/nicolas-poy-peters/',
+    github: 'https://github.com/NicoPoy',
+    technologies: 'React, Vite, Router, Context API, Firebase, Bootstrap.',
+    about:
+      'Soy Nicolas, estudiante de React y creador de Universo Geek. Este proyecto representa mi entrega final: una tienda ecommerce con catalogo, detalle de productos, carrito, autenticacion y panel de administracion.',
   },
   {
     name: 'Lourdes',
@@ -23,6 +34,8 @@ const team = [
 
 // Footer muestra informacion de la empresa y las tarjetas requeridas por la consigna.
 function Footer() {
+  const [selectedPerson, setSelectedPerson] = useState(null)
+
   return (
     <footer className="site-footer">
       {/* Bloque institucional de Universo Geek. */}
@@ -40,13 +53,81 @@ function Footer() {
           <article className="person-card" key={person.email}>
             <div className="person-heading">
               <img className="person-avatar" src={person.image} alt={person.name} />
-              <h3>{person.name}</h3>
+              <div>
+                <h3>{person.name}</h3>
+                <button
+                  className="about-button"
+                  disabled={!person.about}
+                  type="button"
+                  onClick={() => setSelectedPerson(person)}
+                >
+                  Sobre mi
+                </button>
+              </div>
             </div>
             <p>{person.role}</p>
             <a href={`mailto:${person.email}`}>{person.email}</a>
           </article>
         ))}
       </section>
+
+      <Modal
+        centered
+        show={Boolean(selectedPerson)}
+        onHide={() => setSelectedPerson(null)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Sobre mi</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedPerson && (
+            <div className="about-modal-content">
+              <div className="about-modal-heading">
+                <img src={selectedPerson.image} alt={selectedPerson.name} />
+                <h3>{selectedPerson.name}</h3>
+              </div>
+              <p>{selectedPerson.about}</p>
+              {selectedPerson.technologies && (
+                <p className="about-technologies">
+                  <strong>Tecnologias usadas:</strong> {selectedPerson.technologies}
+                </p>
+              )}
+              <a href={`mailto:${selectedPerson.email}`}>{selectedPerson.email}</a>
+              {selectedPerson.linkedin && (
+                <a
+                  className="profile-link-card linkedin-card"
+                  href={selectedPerson.linkedin}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <FaLinkedin aria-hidden="true" />
+                  <span>
+                    <span className="profile-link-label">
+                      LinkedIn
+                      <em>Open to work</em>
+                    </span>
+                    <strong>nicolas-poy-peters</strong>
+                  </span>
+                </a>
+              )}
+              {selectedPerson.github && (
+                <a
+                  className="profile-link-card github-card"
+                  href={selectedPerson.github}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <FaGithub aria-hidden="true" />
+                  <span>
+                    GitHub
+                    <strong>NicoPoy</strong>
+                  </span>
+                </a>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
     </footer>
   )
 }

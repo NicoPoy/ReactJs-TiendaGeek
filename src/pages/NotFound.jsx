@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom'
+import Seo from '../components/seo/Seo.jsx'
 
 // Pagina de respaldo para cualquier ruta que no exista en la aplicacion.
+// Mantiene una salida clara hacia el home para no dejar al usuario bloqueado.
 function NotFound() {
   return (
     <section className="page-section compact-section">
+      <Seo
+        title="Página no encontrada"
+        description="La ruta solicitada no existe en Universo Geek."
+      />
       <div className="section-heading">
         <span className="eyebrow">404</span>
         <h1>Pagina no encontrada</h1>
