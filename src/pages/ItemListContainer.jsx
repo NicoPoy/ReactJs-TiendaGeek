@@ -6,12 +6,12 @@ import { getProducts } from '../services/productService.js'
 // ItemListContainer es la pantalla de catalogo.
 // Carga productos desde el servicio, aplica busqueda, categoria y paginacion.
 // Categorias disponibles para filtrar el catalogo.
-// Deben coincidir con los valores category definidos en productos.json.
+// Deben coincidir con los valores category guardados en Firestore.
 const categories = ['Todos', 'Perifericos', 'Setup', 'Rol', 'Coleccion']
 const productsPerPage = 8
 
 function ItemListContainer() {
-  // products guarda el listado completo recibido desde public/productos.json.
+  // products guarda el listado completo recibido desde Firestore.
   const [products, setProducts] = useState([])
   // selectedCategory controla que filtro esta activo en la vista.
   const [selectedCategory, setSelectedCategory] = useState('Todos')
@@ -164,3 +164,4 @@ function ItemListContainer() {
 }
 
 export default ItemListContainer
+

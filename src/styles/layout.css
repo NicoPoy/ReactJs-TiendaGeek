@@ -1,4 +1,4 @@
-﻿/* Estructura general: header arriba, contenido flexible y footer abajo. */
+/* Estructura general: header arriba, contenido flexible y footer abajo. */
 .app-shell {
   display: flex;
   min-height: 100vh;
@@ -54,7 +54,8 @@
 }
 
 /* Estados de navegacion normal, hover y ruta activa. */
-.nav-links a {
+.nav-links a,
+.nav-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +67,8 @@
 }
 
 .nav-links a.active,
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-action:hover {
   background: rgba(94, 234, 212, 0.16);
   color: #f8fafc;
 }
@@ -102,4 +104,16 @@
 .main-content {
   flex: 1;
 }
+.nav-action {
+  border: 1px solid rgba(248, 113, 113, 0.36);
+  background: rgba(127, 29, 29, 0.22);
+  color: #fecaca;
+  cursor: pointer;
+}
+
+.nav-action:hover {
+  border-color: rgba(248, 113, 113, 0.62);
+  color: #fff;
+}
+
 

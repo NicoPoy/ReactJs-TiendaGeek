@@ -42,7 +42,7 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 ## Contextos
 
 - `src/context/AuthContext.jsx`: estado global de usuario, login, registro,
-  logout y modo demo local.
+  logout con Firebase Authentication.
 - `src/context/CartContext.jsx`: estado global del carrito, cantidades, total y
   acciones de agregar/quitar/vaciar.
 
@@ -50,9 +50,8 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 
 - `src/firebase/config.js`: lee variables de entorno y crea instancias de Auth y
   Firestore cuando Firebase esta configurado.
-- `src/services/productService.js`: capa unica de productos. Usa Firestore si
-  existe configuracion y `localStorage`/JSON como fallback demo.
-- `public/productos.json`: catalogo inicial para carga local o seed.
+- `src/services/productService.js`: capa unica de productos. Lee, crea, actualiza y elimina productos exclusivamente en Firestore.
+- `public/productos.json`: catalogo inicial usado para sembrar la coleccion `products` en Firestore.
 - `public/images/`: imagenes usadas por productos y layout.
 
 ## Estilos
@@ -75,9 +74,9 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 
 1. `main.jsx` monta providers globales.
 2. Las paginas piden productos a `productService.js`.
-3. `productService.js` decide si usar Firestore o fallback local.
+3. `productService.js` usa exclusivamente Firestore para el catalogo.
 4. `CartContext` mantiene el carrito en memoria durante la sesion.
-5. `AuthContext` mantiene el usuario autenticado o un usuario demo.
+5. `AuthContext` mantiene el usuario autenticado por Firebase Authentication.
 6. `ProtectedRoute` usa `AuthContext` para permitir o bloquear rutas privadas.
 
 ## Criterio de documentacion
@@ -85,3 +84,4 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 Cada archivo tiene un comentario inicial o comentarios cercanos a la logica
 principal explicando que hace. Los comentarios evitan repetir codigo obvio y se
 concentran en responsabilidades, flujos y decisiones importantes.
+

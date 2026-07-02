@@ -97,8 +97,9 @@ http://localhost:5173
 2. Crear una app web dentro del proyecto.
 3. Activar Authentication con proveedor Email/Password.
 4. Crear una base de datos Firestore.
-5. Copiar `.env.example` como `.env`.
-6. Completar `.env` con los datos reales del proyecto.
+5. Activar Firebase Storage para subir imagenes de productos.
+6. Copiar .env.example como .env.
+7. Completar .env con los datos reales del proyecto.
 
 Variables esperadas:
 
@@ -111,9 +112,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 ```
 
-Si Firebase no esta configurado, la app usa un modo demo local con
-`localStorage`. Esto permite probar la interfaz, pero para la entrega final se
-recomienda usar Firebase real.
+Firebase debe estar configurado para usar autenticacion y catalogo. La app no usa datos locales para simular usuarios o productos.
 
 ## Reglas sugeridas de Firestore
 
@@ -133,6 +132,27 @@ service cloud.firestore {
 }
 ```
 
+
+## Reglas sugeridas de Storage
+
+Estas reglas permiten leer imagenes publicamente y restringen la subida de
+imagenes a usuarios autenticados. Tambien limitan cada archivo a 1 MB y a
+formatos de imagen compatibles con el panel admin:
+
+```txt
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /product-images/{imageId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.resource.size < 1 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+  }
+}
+```
 ## Cargar productos iniciales
 
 1. Ejecutar el proyecto.
@@ -141,8 +161,7 @@ service cloud.firestore {
 4. Entrar a `/admin`.
 5. Presionar `Cargar JSON inicial`.
 
-Ese boton toma los productos de `public/productos.json` y los guarda en la
-coleccion `products` de Firestore. En modo demo los guarda en `localStorage`.
+Ese boton toma los productos de `public/productos.json` y los guarda en la coleccion `products` de Firestore.
 
 ## Scripts disponibles
 
@@ -191,5 +210,14 @@ Para publicar en Vercel o Netlify:
 - [x] Busqueda y paginacion.
 - [x] SEO dinamico.
 - [x] CSS dividido por responsabilidad.
-- [ ] Firebase real configurado en el entorno de entrega.
+- [x] Firebase real configurado en el entorno de entrega.
 - [ ] Deploy publicado y probado.
+
+
+## Credenciales
+VITE_FIREBASE_API_KEY="AIzaSyB7EFBB4Zn_IJ7_mjm8dBZhBpymek1zOVg"
+VITE_FIREBASE_AUTH_DOMAIN="curso-react-67e7b.firebaseapp.com"
+VITE_FIREBASE_PROJECT_ID="curso-react-67e7b"
+VITE_FIREBASE_STORAGE_BUCKET="curso-react-67e7b.firebasestorage.app"
+VITE_FIREBASE_MESSAGING_SENDER_ID="393314399948"
+VITE_FIREBASE_APP_ID="1:393314399948:web:13ff01163203059a4df469"

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 function Item({ product }) {
   return (
     <article className="product-card">
-      {/* Imagen local del producto, definida en public/productos.json. */}
+      {/* Imagen del producto, definida en el documento de Firestore. */}
       <img src={product.image} alt={product.name} />
       <div className="product-card-content">
         <span className="product-category">{product.category}</span>
@@ -26,3 +26,4 @@ function Item({ product }) {
 }
 
 export default Item
+

@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 // Configuracion centralizada de Firebase.
 // Vite expone variables de entorno con el prefijo VITE_.
@@ -16,7 +17,7 @@ const firebaseConfig = {
 // requiredKeys enumera las credenciales minimas necesarias para iniciar Firebase.
 const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'appId']
 
-// Permite que la app funcione en modo demo si falta configuracion real.
+// Indica si estan cargadas las credenciales minimas de Firebase.
 export const isFirebaseConfigured = requiredKeys.every((key) => {
   // value representa el valor de cada credencial revisada.
   const value = firebaseConfig[key]
@@ -26,6 +27,7 @@ export const isFirebaseConfigured = requiredKeys.every((key) => {
 // app guarda la instancia de Firebase cuando hay configuracion valida.
 const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null
 
-// Auth y Firestore se exportan como null en modo demo para evitar errores.
+// Auth, Firestore y Storage se exportan como null si falta configuracion.
 export const auth = app ? getAuth(app) : null
 export const db = app ? getFirestore(app) : null
+export const storage = app ? getStorage(app) : null

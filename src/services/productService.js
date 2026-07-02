@@ -10,17 +10,20 @@ import {
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore'
-import { db, isFirebaseConfigured } from '../firebase/config.js'
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
+import { db, isFirebaseConfigured, storage } from '../firebase/config.js'
 
 // Servicio unico de productos.
-// Las paginas consumen estas funciones sin saber si los datos vienen de
-// Firestore, localStorage o productos.json.
-// productsCollectionName representa el nombre de la coleccion usada en Firestore.
+// Todas las operaciones de catalogo leen y escriben exclusivamente en Firestore.
 const productsCollectionName = 'products'
-// localProductsKey representa la clave donde se guarda el catalogo en localStorage.
-const localProductsKey = 'universo-geek-products'
+const categoriesCollectionName = 'categories'
+const productImagesPath = 'product-images'
 
-// Normaliza datos que vienen de JSON, localStorage o Firestore.
+export const defaultProductCategories = ['Perifericos', 'Setup', 'Rol', 'Coleccion']
+export const maxProductImageSize = 1024 * 1024
+export const acceptedProductImageTypes = ['image/jpeg', 'image/png', 'image/webp']
+
+// Normaliza datos que vienen de Firestore o del JSON usado para sembrar la base.
 const normalizeProduct = (product) => ({
   ...product,
   id: String(product.id),
@@ -28,43 +31,96 @@ const normalizeProduct = (product) => ({
   stock: Number(product.stock),
 })
 
-// getLocalProducts obtiene productos desde localStorage o desde productos.json.
-async function getLocalProducts() {
-  // El fallback local permite probar el proyecto aunque Firebase no este listo.
-  // savedProducts representa el catalogo guardado localmente, si existe.
-  const savedProducts = localStorage.getItem(localProductsKey)
+const normalizeCategory = (category) => ({
+  ...category,
+  id: String(category.id),
+  name: String(category.name),
+})
 
-  if (savedProducts) {
-    return JSON.parse(savedProducts).map(normalizeProduct)
-  }
-
-  // response representa la respuesta HTTP del JSON local.
-  const response = await fetch('/productos.json')
-
-  if (!response.ok) {
-    throw new Error('No se pudieron cargar los productos')
-  }
-
-  // products contiene el array crudo recibido desde productos.json.
-  const products = await response.json()
-  // normalizedProducts contiene productos con id, precio y stock normalizados.
-  const normalizedProducts = products.map(normalizeProduct)
-  localStorage.setItem(localProductsKey, JSON.stringify(normalizedProducts))
-
-  return normalizedProducts
-}
-
-// saveLocalProducts persiste productos en localStorage para el modo demo.
-function saveLocalProducts(products) {
-  localStorage.setItem(localProductsKey, JSON.stringify(products.map(normalizeProduct)))
-}
-
-// getProducts devuelve todos los productos disponibles para el catalogo.
-export async function getProducts() {
-  // Si no hay Firebase, se usa catalogo local.
+function assertFirestoreReady() {
   if (!isFirebaseConfigured || !db) {
-    return getLocalProducts()
+    throw new Error('Firestore no esta configurado.')
   }
+}
+
+function assertStorageReady() {
+  if (!isFirebaseConfigured || !storage) {
+    throw new Error('Firebase Storage no esta configurado.')
+  }
+}
+
+function getSafeFileName(fileName) {
+  return fileName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9.\-_]+/g, '-')
+    .replace(/-+/g, '-')
+}
+
+async function createCategoryDocument(name) {
+  const createdCategory = await addDoc(collection(db, categoriesCollectionName), {
+    name,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+
+  return { id: createdCategory.id, name }
+}
+
+// uploadProductImage sube una imagen validada a Storage y devuelve su URL publica.
+export async function uploadProductImage(file) {
+  assertStorageReady()
+
+  const safeFileName = getSafeFileName(file.name || 'producto')
+  const imageId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`
+  const imageRef = ref(storage, `${productImagesPath}/${imageId}-${safeFileName}`)
+
+  await uploadBytes(imageRef, file, {
+    contentType: file.type,
+    customMetadata: {
+      originalName: file.name,
+    },
+  })
+
+  return getDownloadURL(imageRef)
+}
+
+// getProductCategories devuelve categorias administrables desde Firestore.
+export async function getProductCategories() {
+  assertFirestoreReady()
+
+  const categoriesQuery = query(collection(db, categoriesCollectionName), orderBy('name'))
+  const snapshot = await getDocs(categoriesQuery)
+
+  if (snapshot.empty) {
+    const createdCategories = await Promise.all(
+      defaultProductCategories.map((categoryName) => createCategoryDocument(categoryName)),
+    )
+    return createdCategories.sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  return snapshot.docs.map((categoryDoc) =>
+    normalizeCategory({ id: categoryDoc.id, ...categoryDoc.data() }),
+  )
+}
+
+// createProductCategory agrega una categoria nueva al selector del panel.
+export async function createProductCategory(name) {
+  assertFirestoreReady()
+
+  return createCategoryDocument(name)
+}
+
+// deleteProductCategory elimina una categoria por id. El panel valida antes que no tenga productos.
+export async function deleteProductCategory(categoryId) {
+  assertFirestoreReady()
+
+  await deleteDoc(doc(db, categoriesCollectionName, String(categoryId)))
+}
+
+// getProducts devuelve todos los productos disponibles desde Firestore.
+export async function getProducts() {
+  assertFirestoreReady()
 
   // productsQuery define la consulta ordenada por nombre en Firestore.
   const productsQuery = query(collection(db, productsCollectionName), orderBy('name'))
@@ -76,13 +132,9 @@ export async function getProducts() {
   )
 }
 
-// getProductById busca un producto individual por id.
+// getProductById busca un producto individual por id en Firestore.
 export async function getProductById(productId) {
-  if (!isFirebaseConfigured || !db) {
-    // products contiene el catalogo local usado para buscar el detalle.
-    const products = await getLocalProducts()
-    return products.find((product) => String(product.id) === String(productId)) ?? null
-  }
+  assertFirestoreReady()
 
   // productRef apunta al documento Firestore del producto solicitado.
   const productRef = doc(db, productsCollectionName, String(productId))
@@ -96,21 +148,15 @@ export async function getProductById(productId) {
   return normalizeProduct({ id: productSnapshot.id, ...productSnapshot.data() })
 }
 
-// createProduct crea un producto nuevo en Firestore o en modo demo local.
+// createProduct crea un producto nuevo en Firestore.
 export async function createProduct(productData) {
-  // product representa el producto ya normalizado y con id local provisorio.
+  assertFirestoreReady()
+
+  // product representa los datos normalizados antes de guardarse.
   const product = normalizeProduct({
     ...productData,
-    id: crypto.randomUUID(),
+    id: 'pending-firestore-id',
   })
-
-  if (!isFirebaseConfigured || !db) {
-    // products contiene el catalogo local antes de agregar el nuevo producto.
-    const products = await getLocalProducts()
-    saveLocalProducts([...products, product])
-    return product
-  }
-
   // id se separa porque Firestore genera el id del documento.
   // firestoreProduct contiene solo los campos que se guardan como data.
   const { id, ...firestoreProduct } = product
@@ -124,22 +170,12 @@ export async function createProduct(productData) {
   return { ...product, id: createdProduct.id }
 }
 
-// updateProduct actualiza un producto existente por id.
+// updateProduct actualiza un producto existente por id en Firestore.
 export async function updateProduct(productId, productData) {
+  assertFirestoreReady()
+
   // product representa los datos normalizados listos para guardar.
   const product = normalizeProduct({ ...productData, id: productId })
-
-  if (!isFirebaseConfigured || !db) {
-    // products contiene el catalogo local antes de reemplazar el producto editado.
-    const products = await getLocalProducts()
-    saveLocalProducts(
-      products.map((currentProduct) =>
-        String(currentProduct.id) === String(productId) ? product : currentProduct,
-      ),
-    )
-    return product
-  }
-
   // id se excluye de la data porque el id ya vive en la ruta del documento.
   // firestoreProduct contiene los campos editables del producto.
   const { id, ...firestoreProduct } = product
@@ -151,34 +187,25 @@ export async function updateProduct(productId, productData) {
   return product
 }
 
-// deleteProduct elimina un producto por id.
+// deleteProduct elimina un producto por id en Firestore.
 export async function deleteProduct(productId) {
-  if (!isFirebaseConfigured || !db) {
-    // products contiene el catalogo local antes de filtrar el producto eliminado.
-    const products = await getLocalProducts()
-    saveLocalProducts(
-      products.filter((product) => String(product.id) !== String(productId)),
-    )
-    return
-  }
+  assertFirestoreReady()
 
   await deleteDoc(doc(db, productsCollectionName, String(productId)))
 }
 
-// seedProductsFromJson carga productos iniciales desde public/productos.json.
+// seedProductsFromJson carga productos iniciales desde public/productos.json a Firestore.
 export async function seedProductsFromJson() {
-  // Seed inicial para poblar Firestore desde el JSON entregado con el proyecto.
-  if (!isFirebaseConfigured || !db) {
-    // response representa la respuesta HTTP del JSON local.
-    const response = await fetch('/productos.json')
-    // products contiene el array base para guardar en modo demo.
-    const products = await response.json()
-    saveLocalProducts(products)
-    return products.map(normalizeProduct)
+  assertFirestoreReady()
+  await getProductCategories()
+
+  // response representa la respuesta HTTP del JSON local incluido con el proyecto.
+  const response = await fetch('/productos.json')
+
+  if (!response.ok) {
+    throw new Error('No se pudo leer el catalogo inicial.')
   }
 
-  // response representa la respuesta HTTP del JSON local.
-  const response = await fetch('/productos.json')
   // products contiene el array base que se va a subir a Firestore.
   const products = await response.json()
   // createdProducts contiene las referencias creadas en Firestore.

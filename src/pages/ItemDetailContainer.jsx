@@ -14,7 +14,7 @@ function ItemDetailContainer() {
   const { isAuthenticated } = useAuth()
   // addToCart viene del contexto global del carrito.
   const { addToCart } = useCart()
-  // product guarda el producto encontrado en productos.json.
+  // product guarda el producto encontrado en Firestore.
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -90,3 +90,4 @@ function ItemDetailContainer() {
 }
 
 export default ItemDetailContainer
+

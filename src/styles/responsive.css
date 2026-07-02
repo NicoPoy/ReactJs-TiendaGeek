@@ -1,4 +1,4 @@
-﻿/* Ajustes para pantallas medianas: evita que el sidebar tape el catalogo. */
+/* Ajustes para pantallas medianas: evita que el sidebar tape el catalogo. */
 @media (max-width: 980px) {
   .login-shell {
     grid-template-columns: 1fr;
@@ -23,6 +23,22 @@
   .category-filters {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .admin-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-hero-actions {
+    justify-content: flex-start;
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category-list {
+    grid-auto-columns: calc((100% - 10px) / 2);
+  }
 }
 
 /* Ajustes para tablets y celulares. */
@@ -39,7 +55,8 @@
     flex-wrap: wrap;
   }
 
-  .nav-links a {
+  .nav-links a,
+  .nav-action {
     flex: 1;
     text-align: center;
   }
@@ -83,7 +100,9 @@
     flex-direction: column;
   }
 
-  .form-grid {
+  .form-grid,
+  .image-upload-box,
+  .category-form {
     grid-template-columns: 1fr;
   }
 
@@ -102,8 +121,18 @@
     padding: 18px;
   }
 
-  .category-filters {
+  .category-filters,
+  .admin-stats {
     grid-template-columns: 1fr;
+  }
+
+  .admin-hero,
+  .admin-form {
+    padding: 20px;
+  }
+
+  .category-list {
+    grid-auto-columns: 100%;
   }
 
   .catalog-results-bar {
@@ -145,3 +174,7 @@
     width: 100%;
   }
 }
+
+
+
+

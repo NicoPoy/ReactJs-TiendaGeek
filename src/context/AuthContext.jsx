@@ -8,10 +8,8 @@ import {
 import { auth, isFirebaseConfigured } from '../firebase/config.js'
 
 // AuthContext centraliza el estado de usuario y las acciones de autenticacion.
-// Si Firebase no esta configurado usa localStorage como modo demo.
+// Todas las sesiones se validan exclusivamente contra Firebase Authentication.
 const AuthContext = createContext()
-// demoUserKey es la clave usada para persistir el usuario demo en localStorage.
-const demoUserKey = 'universo-geek-demo-user'
 
 // AuthProvider expone usuario, estado de carga y acciones auth a toda la app.
 export function AuthProvider({ children }) {
@@ -21,16 +19,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Modo demo: restaura un usuario guardado localmente y evita llamar Firebase.
     if (!isFirebaseConfigured || !auth) {
-      // savedUser contiene la sesion demo persistida localmente, si existe.
-      const savedUser = localStorage.getItem(demoUserKey)
-      setUser(savedUser ? JSON.parse(savedUser) : null)
       setLoading(false)
       return undefined
     }
 
-    // Modo real: Firebase notifica cada cambio de sesion.
+    // Firebase notifica cada cambio de sesion.
     // unsubscribe permite cortar la escucha cuando el provider se desmonta.
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser)
@@ -40,15 +34,10 @@ export function AuthProvider({ children }) {
     return unsubscribe
   }, [])
 
-  // login inicia sesion con email/password usando Firebase o modo demo.
+  // login inicia sesion con email/password usando Firebase Authentication.
   const login = async (email, password) => {
-    // En modo demo cualquier email/password valido crea una sesion local.
     if (!isFirebaseConfigured || !auth) {
-      // demoUser representa el usuario local simulado para probar la interfaz.
-      const demoUser = { email, uid: 'demo-user' }
-      localStorage.setItem(demoUserKey, JSON.stringify(demoUser))
-      setUser(demoUser)
-      return demoUser
+      throw new Error('Firebase Authentication no esta configurado.')
     }
 
     // credential contiene la respuesta de Firebase Authentication.
@@ -56,15 +45,10 @@ export function AuthProvider({ children }) {
     return credential.user
   }
 
-  // register crea una cuenta nueva con email/password usando Firebase o modo demo.
+  // register crea una cuenta nueva con email/password usando Firebase.
   const register = async (email, password) => {
-    // En modo demo registro y login se comportan igual para poder probar la UI.
     if (!isFirebaseConfigured || !auth) {
-      // demoUser representa el usuario local simulado para probar la interfaz.
-      const demoUser = { email, uid: 'demo-user' }
-      localStorage.setItem(demoUserKey, JSON.stringify(demoUser))
-      setUser(demoUser)
-      return demoUser
+      throw new Error('Firebase Authentication no esta configurado.')
     }
 
     // credential contiene la respuesta de Firebase luego del registro.
@@ -72,10 +56,9 @@ export function AuthProvider({ children }) {
     return credential.user
   }
 
-  // logout cierra la sesion actual y limpia el modo demo cuando corresponde.
+  // logout cierra la sesion actual en Firebase Authentication.
   const logout = async () => {
     if (!isFirebaseConfigured || !auth) {
-      localStorage.removeItem(demoUserKey)
       setUser(null)
       return
     }

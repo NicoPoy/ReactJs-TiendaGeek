@@ -6,7 +6,7 @@ import Seo from '../components/seo/Seo.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
 // Login permite iniciar sesion o registrar usuario desde una misma pantalla.
-// Usa AuthContext para trabajar con Firebase real o con el modo demo local.
+// Usa AuthContext para trabajar con Firebase Authentication.
 function Login() {
   const { isAuthenticated, isFirebaseConfigured, login, register } = useAuth()
   const navigate = useNavigate()
@@ -85,8 +85,7 @@ function Login() {
         <div className="login-form-wrap">
           {!isFirebaseConfigured && (
             <Alert className="login-alert" variant="warning">
-              Firebase no esta configurado. El acceso funciona en modo demo local
-              hasta que cargues las variables de entorno.
+              Firebase no esta configurado. Carga las variables de entorno para iniciar sesion.
             </Alert>
           )}
 
@@ -153,3 +152,4 @@ function Login() {
 }
 
 export default Login
+
