@@ -46,6 +46,29 @@
   object-position: 28% 50%;
 }
 
+/* Boton hamburguesa: se oculta en desktop y se activa desde responsive.css. */
+.menu-toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(94, 234, 212, 0.28);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #f8fafc;
+  cursor: pointer;
+}
+
+.menu-toggle:hover {
+  border-color: rgba(94, 234, 212, 0.56);
+  background: rgba(94, 234, 212, 0.14);
+}
+
+.menu-toggle svg {
+  width: 22px;
+  height: 22px;
+}
+
 /* Grupo de enlaces principales. */
 .nav-links {
   display: flex;
