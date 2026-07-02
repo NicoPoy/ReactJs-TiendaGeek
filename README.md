@@ -190,6 +190,7 @@ Para publicar en Vercel o Netlify:
 - [x] SEO dinamico.
 - [x] CSS dividido por responsabilidad.
 - [x] Firebase real configurado en el entorno de entrega.
+- [ ] Chequear los roles de usuarios y admin, que no se creen admins
 - [ ] Deploy publicado y probado.
 
 
