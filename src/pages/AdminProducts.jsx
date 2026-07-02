@@ -32,7 +32,9 @@ import {
 
 // AdminProducts es el panel privado de administracion.
 // Permite listar, crear, editar, eliminar y cargar productos iniciales.
+// maxImageSizeLabel formatea el limite tecnico en un texto entendible para errores.
 const maxImageSizeLabel = `${maxProductImageSize / 1024 / 1024} MB`
+// productFieldLimits centraliza reglas de validacion para no repetir numeros en el formulario.
 const productFieldLimits = {
   category: 40,
   name: 60,
@@ -42,21 +44,27 @@ const productFieldLimits = {
   stock: 999,
 }
 
+// normalizeCategoryName permite comparar categorias sin que importen espacios o mayusculas.
 function normalizeCategoryName(categoryName) {
   return String(categoryName).trim().toLowerCase()
 }
 
+// parseCurrencyValue convierte el texto con formato argentino a numero guardable.
 function parseCurrencyValue(value) {
+  // normalizedValue limpia simbolos y separadores antes de llamar a Number.
   const normalizedValue = String(value)
     .replace(/[^\d,.-]/g, '')
     .replace(/\./g, '')
     .replace(',', '.')
+  // numericValue es el precio final usado para validaciones y Firestore.
   const numericValue = Number(normalizedValue)
 
   return Number.isFinite(numericValue) ? numericValue : 0
 }
 
+// formatCurrencyInput muestra el precio como moneda mientras se escribe o edita.
 function formatCurrencyInput(value) {
+  // numericValue acepta tanto numeros de Firestore como strings del input.
   const numericValue = typeof value === 'number' ? value : parseCurrencyValue(value)
 
   if (!numericValue) return ''
@@ -66,7 +74,10 @@ function formatCurrencyInput(value) {
     maximumFractionDigits: 2,
   })}`
 }
+
+// getProductSaveErrorMessage agrega detalle tecnico cuando Firebase o imagen devuelven Error.
 function getProductSaveErrorMessage(error) {
+  // fallbackMessage es el mensaje base para no exponer errores crudos sin contexto.
   const fallbackMessage = 'No se pudo guardar el producto. Revisa la imagen y la conexion con Firebase.'
 
   if (error instanceof Error && error.message) {
@@ -99,35 +110,55 @@ const AdminToolbar = styled.div`
 `
 
 function AdminProducts() {
+  // useAuth entrega sesion admin, estado de Firebase y accion para cerrar sesion.
   const { isFirebaseConfigured, logout, user } = useAuth()
+  // products es la lista editable que alimenta tabla, estadisticas y categorias en uso.
   const [products, setProducts] = useState([])
+  // productCategories contiene las categorias administrables leidas desde Firestore.
   const [productCategories, setProductCategories] = useState([])
+  // newCategoryName guarda el input de alta rapida de categoria.
   const [newCategoryName, setNewCategoryName] = useState('')
+  // formData contiene los campos del formulario de alta/edicion.
   const [formData, setFormData] = useState(initialFormData)
+  // imageFile guarda el archivo original elegido para saber si hay una imagen nueva.
   const [imageFile, setImageFile] = useState(null)
+  // preparedImage guarda la imagen comprimida lista para persistir.
   const [preparedImage, setPreparedImage] = useState('')
+  // imagePreview muestra una vista previa local o remota sin guardar todavia.
   const [imagePreview, setImagePreview] = useState('')
+  // imageUploadError separa errores de imagen de errores generales del producto.
   const [imageUploadError, setImageUploadError] = useState('')
+  // imageProcessing bloquea el guardado mientras se valida/comprime la imagen.
   const [imageProcessing, setImageProcessing] = useState(false)
+  // editingProductId indica si el formulario esta editando o creando.
   const [editingProductId, setEditingProductId] = useState(null)
+  // productToDelete guarda el producto seleccionado para el modal de confirmacion.
   const [productToDelete, setProductToDelete] = useState(null)
+  // loading cubre la carga inicial de productos/categorias.
   const [loading, setLoading] = useState(true)
+  // saving cubre operaciones de escritura para deshabilitar acciones duplicadas.
   const [saving, setSaving] = useState(false)
+  // error muestra problemas recuperables en el panel.
   const [error, setError] = useState('')
+  // success confirma acciones completadas sin salir de la pantalla.
   const [success, setSuccess] = useState('')
 
+  // isEditing simplifica condicionales de titulo, boton y submit.
   const isEditing = Boolean(editingProductId)
 
+  // sortedProducts ordena la tabla alfabeticamente sin mutar el estado original.
   const sortedProducts = useMemo(
     () => [...products].sort((a, b) => a.name.localeCompare(b.name)),
     [products],
   )
 
+  // totalStock alimenta la metrica de unidades disponibles del dashboard admin.
   const totalStock = useMemo(
     () => products.reduce((total, product) => total + product.stock, 0),
     [products],
   )
 
+  // inventoryValue estima el valor del inventario multiplicando precio por stock.
   const inventoryValue = useMemo(
     () =>
       products.reduce(
@@ -137,6 +168,7 @@ function AdminProducts() {
     [products],
   )
 
+  // productsByCategory resume cuantos productos usan cada categoria para evitar borrados peligrosos.
   const productsByCategory = useMemo(
     () =>
       products.reduce((summary, product) => {
@@ -146,8 +178,10 @@ function AdminProducts() {
     [products],
   )
 
+  // categoryCount muestra cuantas categorias hay configuradas.
   const categoryCount = productCategories.length
 
+  // Limpia object URLs de previews para no acumular memoria del navegador.
   useEffect(
     () => () => {
       if (imagePreview.startsWith('blob:')) {
@@ -157,16 +191,19 @@ function AdminProducts() {
     [imagePreview],
   )
 
+  // loadProducts trae productos y categorias en paralelo al abrir o refrescar el panel.
   const loadProducts = async () => {
     try {
       setLoading(true)
       setError('')
+      // Promise.all reduce tiempo de espera porque ambas lecturas son independientes.
       const [loadedProducts, loadedCategories] = await Promise.all([
         getProducts(),
         getProductCategories(),
       ])
       setProducts(loadedProducts)
       setProductCategories(loadedCategories)
+      // Si el formulario no tiene categoria, usa la primera disponible.
       setFormData((currentData) => ({
         ...currentData,
         category: currentData.category || loadedCategories[0]?.name || '',
@@ -178,11 +215,14 @@ function AdminProducts() {
     }
   }
 
+  // Carga inicial del panel admin.
   useEffect(() => {
     loadProducts()
   }, [])
 
+  // handleChange sincroniza inputs; price se formatea como moneda.
   const handleChange = (event) => {
+    // name identifica que campo del formulario se esta editando.
     const { name, value } = event.target
 
     if (name === 'price') {
@@ -196,6 +236,7 @@ function AdminProducts() {
     setFormData((currentData) => ({ ...currentData, [name]: value }))
   }
 
+  // resetForm vuelve al modo alta y limpia imagenes/errores temporales.
   const resetForm = () => {
     setFormData({
       ...initialFormData,
@@ -209,8 +250,11 @@ function AdminProducts() {
     setEditingProductId(null)
   }
 
+  // handleImageChange valida y comprime la imagen apenas el admin la selecciona.
   const handleImageChange = async (event) => {
+    // selectedFile es el archivo elegido desde el input file.
     const selectedFile = event.target.files?.[0]
+    // input permite limpiar el valor si el archivo no sirve.
     const input = event.target
     setImageUploadError('')
     setPreparedImage('')
@@ -240,6 +284,7 @@ function AdminProducts() {
     setImageProcessing(true)
 
     try {
+      // compressedImage es el data URL final que se guarda gratis en Firestore.
       const compressedImage = await uploadProductImage(selectedFile)
       setImageFile(selectedFile)
       setPreparedImage(compressedImage)
@@ -255,8 +300,10 @@ function AdminProducts() {
     }
   }
 
+  // handleAddCategory crea una categoria nueva si no existe y la selecciona en el formulario.
   const handleAddCategory = async (event) => {
     event.preventDefault()
+    // normalizedName es el nombre visible luego de quitar espacios extremos.
     const normalizedName = newCategoryName.trim()
     setError('')
     setSuccess('')
@@ -271,6 +318,7 @@ function AdminProducts() {
       return
     }
 
+    // categoryExists evita duplicados con distinta capitalizacion.
     const categoryExists = productCategories.some(
       (category) => normalizeCategoryName(category.name) === normalizeCategoryName(normalizedName),
     )
@@ -282,6 +330,7 @@ function AdminProducts() {
 
     try {
       setSaving(true)
+      // createdCategory trae el id generado por Firestore.
       const createdCategory = await createProductCategory(normalizedName)
       setProductCategories((currentCategories) =>
         [...currentCategories, createdCategory].sort((a, b) =>
@@ -298,7 +347,9 @@ function AdminProducts() {
     }
   }
 
+  // handleDeleteCategory elimina categorias vacias; bloquea las que ya tienen productos.
   const handleDeleteCategory = async (category) => {
+    // productsInCategory protege contra dejar productos apuntando a categorias borradas.
     const productsInCategory = productsByCategory[category.name] ?? 0
     setError('')
     setSuccess('')
@@ -312,6 +363,7 @@ function AdminProducts() {
       setSaving(true)
       await deleteProductCategory(category.id)
       setProductCategories((currentCategories) => {
+        // nextCategories es la lista local luego de sacar la categoria eliminada.
         const nextCategories = currentCategories.filter(
           (currentCategory) => currentCategory.id !== category.id,
         )
@@ -344,6 +396,7 @@ function AdminProducts() {
     if (formData.description.trim().length > productFieldLimits.description) return 'La descripcion corta no puede superar ' + productFieldLimits.description + ' caracteres.'
     if (!formData.details.trim()) return 'El detalle del producto es obligatorio.'
     if (formData.details.trim().length > productFieldLimits.details) return 'El detalle no puede superar ' + productFieldLimits.details + ' caracteres.'
+    // priceValue convierte el input monetario a numero para validar rango real.
     const priceValue = parseCurrencyValue(formData.price)
     if (priceValue <= 0) return 'El precio debe ser mayor a 0.'
     if (priceValue > productFieldLimits.price) return 'El precio no puede superar ' + productFieldLimits.price + '.'
@@ -353,11 +406,13 @@ function AdminProducts() {
     return ''
   }
 
+  // handleSubmit decide entre crear o actualizar segun isEditing.
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
     setSuccess('')
 
+    // validationError contiene el primer problema encontrado para mostrarlo al admin.
     const validationError = validateForm()
     if (validationError) {
       setError(validationError)
@@ -366,10 +421,12 @@ function AdminProducts() {
 
     try {
       setSaving(true)
+      // imageUrl elige la imagen comprimida nueva o conserva la URL/data previa.
       const imageUrl = imageFile
         ? preparedImage
         : formData.image.trim()
 
+      // payload es el producto listo para Firestore, con textos limpios y numeros reales.
       const payload = {
         ...formData,
         name: formData.name.trim(),
@@ -381,6 +438,7 @@ function AdminProducts() {
       }
 
       if (isEditing) {
+        // updatedProduct actualiza la lista local sin recargar todo el catalogo.
         const updatedProduct = await updateProduct(editingProductId, payload)
         setProducts((currentProducts) =>
           currentProducts.map((product) =>
@@ -389,6 +447,7 @@ function AdminProducts() {
         )
         setSuccess('Producto actualizado correctamente.')
       } else {
+        // createdProduct incluye el id generado por Firestore para agregarlo a la tabla.
         const createdProduct = await createProduct(payload)
         setProducts((currentProducts) => [...currentProducts, createdProduct])
         setSuccess('Producto agregado correctamente.')
@@ -401,6 +460,7 @@ function AdminProducts() {
     }
   }
 
+  // handleEdit carga un producto existente en el formulario para modificarlo.
   const handleEdit = (product) => {
     setEditingProductId(product.id)
     setFormData({
@@ -420,6 +480,7 @@ function AdminProducts() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // handleDelete confirma la baja del producto elegido en el modal.
   const handleDelete = async () => {
     if (!productToDelete) return
 
@@ -438,11 +499,14 @@ function AdminProducts() {
     }
   }
 
+  // handleSeed carga el JSON inicial cuando la base esta vacia o se quiere reiniciar catalogo.
   const handleSeed = async () => {
     try {
       setSaving(true)
       setError('')
+      // seededProducts devuelve los productos creados con ids reales de Firestore.
       const seededProducts = await seedProductsFromJson()
+      // loadedCategories refresca categorias porque el seed tambien asegura categorias base.
       const loadedCategories = await getProductCategories()
       setProducts(seededProducts)
       setProductCategories(loadedCategories)
@@ -466,7 +530,7 @@ function AdminProducts() {
           <span className="eyebrow">Panel privado</span>
           <h1>Gestion de productos</h1>
           <p>
-            Administra el catalogo conectado a Firestore, controla stock y mantené
+            Administra el catalogo conectado a Firestore, controla stock y mantenÃ©
             la tienda lista para vender.
           </p>
           <div className="admin-session">

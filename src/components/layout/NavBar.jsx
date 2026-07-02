@@ -6,7 +6,8 @@ import CartWidget from '../ui/CartWidget.jsx'
 // NavBar permite moverse entre las rutas principales sin recargar la pagina.
 // Los links cambian segun el estado de autenticacion del usuario.
 function NavBar() {
-  const { isAuthenticated, logout } = useAuth()
+  // isAdmin decide si se muestra el panel; isAuthenticated alterna acceso/carrito/salida.
+  const { isAdmin, isAuthenticated, logout } = useAuth()
 
   return (
     <nav className="navbar">
@@ -24,10 +25,12 @@ function NavBar() {
         <NavLink to="/productos">Productos</NavLink>
         {isAuthenticated ? (
           <>
-            <NavLink to="/admin">
-              <FiLock aria-hidden="true" />
-              Panel
-            </NavLink>
+            {isAdmin && (
+              <NavLink to="/admin">
+                <FiLock aria-hidden="true" />
+                Panel
+              </NavLink>
+            )}
             <NavLink to="/carrito">
               {/* CartWidget muestra el icono y la cantidad total del carrito. */}
               <CartWidget />

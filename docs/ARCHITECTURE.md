@@ -24,7 +24,7 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
   `Item`.
 - `src/components/ui/CartWidget.jsx`: muestra icono y contador del carrito.
 - `src/components/auth/ProtectedRoute.jsx`: bloquea rutas si no hay usuario
-  autenticado.
+  autenticado y puede exigir un rol especifico.
 - `src/components/seo/Seo.jsx`: actualiza title y meta description por pagina.
 
 ## Paginas
@@ -41,8 +41,8 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 
 ## Contextos
 
-- `src/context/AuthContext.jsx`: estado global de usuario, login, registro,
-  logout con Firebase Authentication.
+- `src/context/AuthContext.jsx`: estado global de usuario, rol, login,
+  registro y logout con Firebase Authentication.
 - `src/context/CartContext.jsx`: estado global del carrito, cantidades, total y
   acciones de agregar/quitar/vaciar.
 
@@ -50,7 +50,15 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 
 - `src/firebase/config.js`: lee variables de entorno y crea instancias de Auth y
   Firestore cuando Firebase esta configurado.
-- `src/services/productService.js`: capa unica de productos. Lee, crea, actualiza y elimina productos exclusivamente en Firestore.
+- `src/services/productService.js`: capa de productos. Lee, crea,
+  actualiza, elimina y carga productos iniciales desde Firestore.
+- `src/services/categoryService.js`: capa de categorias administrables.
+- `src/services/imageService.js`: validacion y compresion de imagenes antes de
+  guardarlas en Firestore.
+- `src/services/firebaseServiceHelpers.js`: helpers compartidos de Firestore,
+  normalizacion, timeouts y validacion de configuracion.
+- `src/services/userService.js`: capa de perfiles. Crea clientes nuevos en
+  `users/{uid}` y considera admin a usuarios anteriores sin perfil.
 - `public/productos.json`: catalogo inicial usado para sembrar la coleccion `products` en Firestore.
 - `public/images/`: imagenes usadas por productos y layout.
 
@@ -74,10 +82,13 @@ La idea es que el proyecto sea facil de leer, mantener y evaluar.
 
 1. `main.jsx` monta providers globales.
 2. Las paginas piden productos a `productService.js`.
-3. `productService.js` usa exclusivamente Firestore para el catalogo.
+3. Los servicios de productos, categorias e imagenes usan Firestore para el
+   catalogo y comparten helpers comunes.
 4. `CartContext` mantiene el carrito en memoria durante la sesion.
-5. `AuthContext` mantiene el usuario autenticado por Firebase Authentication.
-6. `ProtectedRoute` usa `AuthContext` para permitir o bloquear rutas privadas.
+5. `AuthContext` mantiene el usuario autenticado por Firebase Authentication y
+   carga su rol desde Firestore.
+6. `ProtectedRoute` usa `AuthContext` para permitir o bloquear rutas privadas
+   por autenticacion y rol.
 
 ## Criterio de documentacion
 

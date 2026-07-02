@@ -10,6 +10,7 @@ import './styles/global.css'
 
 // Punto de entrada de React.
 // Aca se conectan los providers globales: router, SEO, autenticacion y carrito.
+// document.getElementById('root') apunta al div definido en index.html.
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>

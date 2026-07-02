@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
 import { auth, isFirebaseConfigured } from '../firebase/config.js'
+import { createClientProfile, getUserProfile, userRoles } from '../services/userService.js'
 
 // AuthContext centraliza el estado de usuario y las acciones de autenticacion.
 // Todas las sesiones se validan exclusivamente contra Firebase Authentication.
@@ -26,8 +28,23 @@ export function AuthProvider({ children }) {
 
     // Firebase notifica cada cambio de sesion.
     // unsubscribe permite cortar la escucha cuando el provider se desmonta.
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      // currentUser es null cuando no hay sesion activa o se acaba de cerrar.
+      if (!currentUser) {
+        setUser(null)
+        setLoading(false)
+        return
+      }
+
+      try {
+        // profile agrega el rol de Firestore al usuario autenticado de Firebase.
+        const profile = await getUserProfile(currentUser)
+        setUser(profile)
+      } catch {
+        // Si falla el perfil, se evita dejar una sesion a medias con permisos ambiguos.
+        setUser(null)
+      }
+
       setLoading(false)
     })
 
@@ -42,10 +59,13 @@ export function AuthProvider({ children }) {
 
     // credential contiene la respuesta de Firebase Authentication.
     const credential = await signInWithEmailAndPassword(auth, email, password)
-    return credential.user
+    // profile decide si la cuenta entra como admin o cliente.
+    const profile = await getUserProfile(credential.user)
+    setUser(profile)
+    return profile
   }
 
-  // register crea una cuenta nueva con email/password usando Firebase.
+  // register crea una cuenta cliente con email/password usando Firebase.
   const register = async (email, password) => {
     if (!isFirebaseConfigured || !auth) {
       throw new Error('Firebase Authentication no esta configurado.')
@@ -53,7 +73,17 @@ export function AuthProvider({ children }) {
 
     // credential contiene la respuesta de Firebase luego del registro.
     const credential = await createUserWithEmailAndPassword(auth, email, password)
-    return credential.user
+
+    try {
+      // Todo registro publico se identifica como cliente; no hay alta de admins desde UI.
+      const profile = await createClientProfile(credential.user)
+      setUser(profile)
+      return profile
+    } catch (error) {
+      // Si no se pudo crear el perfil, borramos el usuario Auth para no dejar cuentas sin rol.
+      await deleteUser(credential.user)
+      throw error
+    }
   }
 
   // logout cierra la sesion actual en Firebase Authentication.
@@ -71,7 +101,14 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       loading,
+      // isAuthenticated resume si existe un perfil cargado y usable.
       isAuthenticated: Boolean(user),
+      // role expone el rol crudo para rutas que necesitan comparar permisos.
+      role: user?.role || null,
+      // isAdmin habilita panel y acciones de gestion.
+      isAdmin: user?.role === userRoles.admin,
+      // isClient identifica compradores creados desde el registro publico.
+      isClient: user?.role === userRoles.client,
       isFirebaseConfigured,
       login,
       logout,

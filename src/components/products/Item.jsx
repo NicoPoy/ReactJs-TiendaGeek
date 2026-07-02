@@ -4,10 +4,19 @@ import { Link } from 'react-router-dom'
 // Recibe todos los datos desde props para poder reutilizarse con cualquier producto.
 // La navegacion al detalle usa el id del producto en la URL.
 function Item({ product }) {
+  // product contiene la data normalizada que llega desde productService.
   return (
     <article className="product-card">
       {/* Imagen del producto, definida en el documento de Firestore. */}
-      <img src={product.image} alt={product.name} />
+      <div className="product-card-media">
+        <img className="product-image" src={product.image} alt={product.name} />
+        <img
+          className="product-brand-mark"
+          src="/images/universo-geek-logo.png"
+          alt=""
+          aria-hidden="true"
+        />
+      </div>
       <div className="product-card-content">
         <span className="product-category">{product.category}</span>
         <h3>{product.name}</h3>

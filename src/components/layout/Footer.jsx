@@ -34,6 +34,7 @@ const team = [
 
 // Footer muestra informacion de la empresa y las tarjetas requeridas por la consigna.
 function Footer() {
+  // selectedPerson define si el modal "Sobre mi" esta abierto y que datos muestra.
   const [selectedPerson, setSelectedPerson] = useState(null)
 
   return (

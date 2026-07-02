@@ -7,7 +7,7 @@ function NotFound() {
   return (
     <section className="page-section compact-section">
       <Seo
-        title="Página no encontrada"
+        title="Pagina no encontrada"
         description="La ruta solicitada no existe en Universo Geek."
       />
       <div className="section-heading">

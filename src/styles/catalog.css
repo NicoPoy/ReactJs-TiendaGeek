@@ -4,6 +4,24 @@
   padding-top: 72px;
 }
 
+.catalog-user-greeting {
+  display: inline-flex;
+  max-width: 280px;
+  min-height: 36px;
+  align-items: center;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid rgba(94, 234, 212, 0.2);
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.56);
+  color: #b8c2d2;
+  font-size: 0.86rem;
+  font-weight: 700;
+  padding: 8px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .catalog-header {
   margin-bottom: 24px;
   border: 1px solid rgba(148, 163, 184, 0.18);

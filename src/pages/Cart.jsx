@@ -1,12 +1,115 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FiCheckCircle, FiPackage, FiShield, FiShoppingBag, FiTruck } from 'react-icons/fi'
 import Seo from '../components/seo/Seo.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 
 // Cart muestra los productos agregados y permite quitarlos o vaciar el carrito.
 // Esta ruta esta protegida desde App.jsx para que solo accedan usuarios logueados.
 function Cart() {
-  const { cart, clearCart, removeFromCart, totalPrice, updateCartQuantity } =
+  // useCart trae el estado global del carrito y sus acciones de edicion.
+  const { cart, clearCart, removeFromCart, totalItems, totalPrice, updateCartQuantity } =
     useCart()
+  // user aporta el email que se imprime en el comprobante simulado.
+  const { user } = useAuth()
+  // completedOrder guarda una copia congelada del pedido luego de comprar.
+  const [completedOrder, setCompletedOrder] = useState(null)
+
+  // handleFakePurchase arma un comprobante local, limpia el carrito y muestra agradecimiento.
+  const handleFakePurchase = () => {
+    // orderItems copia solo los datos necesarios para el resumen de la compra.
+    const orderItems = cart.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      subtotal: item.price * item.quantity,
+    }))
+
+    // completedOrder simula la orden final sin escribir en una pasarela real.
+    setCompletedOrder({
+      id: `UG-${Date.now().toString().slice(-6)}`,
+      createdAt: new Date(),
+      customerEmail: user?.email || 'cliente@universogeek.com',
+      items: orderItems,
+      total: totalPrice,
+    })
+    clearCart()
+  }
+
+  if (completedOrder) {
+    return (
+      <section className="page-section">
+        <Seo
+          title="Compra realizada"
+          description="Confirmacion de compra simulada en Universo Geek."
+        />
+        <div className="purchase-confirmation">
+          <img
+            className="purchase-brand-mark"
+            src="/images/universo-geek-logo.png"
+            alt=""
+            aria-hidden="true"
+          />
+          <FiCheckCircle aria-hidden="true" />
+          <span className="eyebrow">Pedido confirmado</span>
+          <h1>Gracias por su compra</h1>
+          <p>
+            Recibimos tu pedido simulado y dejamos el detalle listo para revisar.
+          </p>
+
+          <dl className="purchase-info">
+            <div>
+              <dt>Orden</dt>
+              <dd>{completedOrder.id}</dd>
+            </div>
+            <div>
+              <dt>Cliente</dt>
+              <dd>{completedOrder.customerEmail}</dd>
+            </div>
+            <div>
+              <dt>Fecha</dt>
+              <dd>{completedOrder.createdAt.toLocaleString('es-AR')}</dd>
+            </div>
+            <div>
+              <dt>Pago</dt>
+              <dd>Aprobado en modo simulacion</dd>
+            </div>
+          </dl>
+
+          <div className="purchase-items" aria-label="Productos comprados">
+            {completedOrder.items.map((item) => (
+              <div className="purchase-item" key={item.id}>
+                <span>
+                  {item.quantity} x {item.name}
+                </span>
+                <strong>${item.subtotal.toLocaleString('es-AR')}</strong>
+              </div>
+            ))}
+          </div>
+
+          <div className="purchase-total">
+            <span>Total abonado</span>
+            <strong>${completedOrder.total.toLocaleString('es-AR')}</strong>
+          </div>
+
+          <div className="form-actions">
+            <Link className="button" to="/productos">
+              Seguir comprando
+            </Link>
+            <button
+              className="button button-secondary"
+              type="button"
+              onClick={() => setCompletedOrder(null)}
+            >
+              Volver al carrito
+            </button>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   // Si no hay items, se muestra un estado vacio con acceso al catalogo.
   if (cart.length === 0) {
@@ -29,69 +132,129 @@ function Cart() {
   }
 
   return (
-    <section className="page-section">
+    <section className="page-section cart-page">
       <Seo title="Carrito" description="Productos agregados al carrito de compras." />
-      <div className="section-heading">
-        <span className="eyebrow">Carrito</span>
-        <h1>Productos agregados</h1>
+      <div className="cart-hero">
+        <div className="section-heading">
+          <span className="eyebrow">Carrito</span>
+          <h1>Inventario de compra</h1>
+          <p>
+            Revisa tus objetos geek, ajusta cantidades y confirma una compra simulada
+            para cerrar el pedido.
+          </p>
+        </div>
+        {/* cart-hero-stats resume estado del carrito antes del panel de checkout. */}
+        <div className="cart-hero-stats" aria-label="Resumen rapido del carrito">
+          <article>
+            <FiShoppingBag aria-hidden="true" />
+            <span>Items</span>
+            <strong>{totalItems}</strong>
+          </article>
+          <article>
+            <FiShield aria-hidden="true" />
+            <span>Checkout</span>
+            <strong>Demo</strong>
+          </article>
+        </div>
       </div>
 
-      {/* Cada item del carrito se renderiza con cantidad y subtotal. */}
-      <div className="cart-list">
-        {cart.map((item) => (
-          <article className="cart-item" key={item.id}>
-            <img src={item.image} alt={item.name} />
-            <div className="cart-item-info">
-              <h2>{item.name}</h2>
-              {/* Controles para modificar cantidad sin superar el stock disponible. */}
-              <div className="quantity-control" aria-label={`Cantidad de ${item.name}`}>
-                <button
-                  type="button"
-                  onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                  disabled={item.quantity <= 1}
-                >
-                  -
-                </button>
-                <input
-                  min="1"
-                  max={item.stock}
-                  type="number"
-                  value={item.quantity}
-                  onChange={(event) =>
-                    updateCartQuantity(item.id, event.target.value)
-                  }
+      <div className="cart-checkout-layout">
+        {/* Cada item del carrito se renderiza con cantidad y subtotal. */}
+        <div className="cart-list" aria-label="Productos agregados">
+          {cart.map((item) => (
+            <article className="cart-item" key={item.id}>
+              <div className="cart-item-media">
+                <img src={item.image} alt={item.name} />
+                <img
+                  className="cart-item-brand"
+                  src="/images/universo-geek-logo.png"
+                  alt=""
+                  aria-hidden="true"
                 />
+              </div>
+              <div className="cart-item-info">
+                <span className="cart-item-category">{item.category}</span>
+                <h2>{item.name}</h2>
+                {/* Controles para modificar cantidad sin superar el stock disponible. */}
+                <div className="quantity-control" aria-label={`Cantidad de ${item.name}`}>
+                  <button
+                    type="button"
+                    onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <input
+                    min="1"
+                    max={item.stock}
+                    type="number"
+                    value={item.quantity}
+                    onChange={(event) =>
+                      updateCartQuantity(item.id, event.target.value)
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                    disabled={item.quantity >= item.stock}
+                  >
+                    +
+                  </button>
+                </div>
+                <p>Stock disponible: {item.stock}</p>
+              </div>
+              <div className="cart-item-actions">
+                <span>Subtotal</span>
+                <strong>
+                  ${(item.price * item.quantity).toLocaleString('es-AR')}
+                </strong>
+                {/* Quita este producto completo del carrito. */}
                 <button
+                  className="button button-secondary"
                   type="button"
-                  onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                  disabled={item.quantity >= item.stock}
+                  onClick={() => removeFromCart(item.id)}
                 >
-                  +
+                  Quitar
                 </button>
               </div>
-              <p>Stock disponible: {item.stock}</p>
-              <strong>
-                ${(item.price * item.quantity).toLocaleString('es-AR')}
-              </strong>
-            </div>
-            {/* Quita este producto completo del carrito. */}
-            <button
-              className="button button-secondary"
-              type="button"
-              onClick={() => removeFromCart(item.id)}
-            >
-              Quitar
-            </button>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
 
-      {/* Resumen final del carrito con total y accion para vaciarlo. */}
-      <div className="cart-summary">
-        <strong>Total: ${totalPrice.toLocaleString('es-AR')}</strong>
-        <button className="button button-secondary" type="button" onClick={clearCart}>
-          Vaciar carrito
-        </button>
+        {/* Resumen final del carrito con total y accion para vaciarlo. */}
+        <aside className="cart-summary" aria-label="Resumen del pedido">
+          <div className="cart-summary-heading">
+            <FiPackage aria-hidden="true" />
+            <div>
+              <span>Pedido Universo Geek</span>
+              <strong>Listo para simular</strong>
+            </div>
+          </div>
+          <div className="cart-summary-lines">
+            <div>
+              <span>Productos</span>
+              <strong>{totalItems}</strong>
+            </div>
+            <div>
+              <span>Entrega</span>
+              <strong>Digital demo</strong>
+            </div>
+            <div>
+              <span>Total</span>
+              <strong>${totalPrice.toLocaleString('es-AR')}</strong>
+            </div>
+          </div>
+          <div className="cart-summary-note">
+            <FiTruck aria-hidden="true" />
+            <span>Compra ficticia para la entrega final, sin cobro real.</span>
+          </div>
+          <button className="button" type="button" onClick={handleFakePurchase}>
+            Comprar
+          </button>
+          <button className="button button-secondary" type="button" onClick={clearCart}>
+            Vaciar carrito
+          </button>
+        </aside>
       </div>
     </section>
   )

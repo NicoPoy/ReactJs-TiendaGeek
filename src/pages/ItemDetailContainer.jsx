@@ -11,12 +11,15 @@ import { getProductById } from '../services/productService.js'
 function ItemDetailContainer() {
   // useParams lee valores dinamicos de la URL definidos en App.jsx.
   const { id } = useParams()
+  // isAuthenticated decide si se muestra comprar o iniciar sesion.
   const { isAuthenticated } = useAuth()
   // addToCart viene del contexto global del carrito.
   const { addToCart } = useCart()
   // product guarda el producto encontrado en Firestore.
   const [product, setProduct] = useState(null)
+  // loading muestra un estado transitorio mientras se lee Firestore.
   const [loading, setLoading] = useState(true)
+  // error guarda problemas de busqueda o productos inexistentes.
   const [error, setError] = useState('')
 
   // Cada vez que cambia el id, se vuelve a buscar el producto correspondiente.
@@ -24,6 +27,7 @@ function ItemDetailContainer() {
     setLoading(true)
     getProductById(id)
       .then((selectedProduct) => {
+        // selectedProduct llega null si Firestore no tiene ese id.
         if (!selectedProduct) {
           throw new Error('El producto no existe')
         }
@@ -59,7 +63,15 @@ function ItemDetailContainer() {
     <section className="detail-layout">
       <Seo title={product.name} description={product.description} />
       {/* Imagen principal del producto seleccionado. */}
-      <img src={product.image} alt={product.name} />
+      <div className="detail-media">
+        <img src={product.image} alt={product.name} />
+        <img
+          className="product-brand-mark detail-brand-mark"
+          src="/images/universo-geek-logo.png"
+          alt=""
+          aria-hidden="true"
+        />
+      </div>
       <article className="detail-content">
         <span className="eyebrow">{product.category}</span>
         <h1>{product.name}</h1>

@@ -8,24 +8,34 @@ import { useAuth } from '../context/AuthContext.jsx'
 // Login permite iniciar sesion o registrar usuario desde una misma pantalla.
 // Usa AuthContext para trabajar con Firebase Authentication.
 function Login() {
-  const { isAuthenticated, isFirebaseConfigured, login, register } = useAuth()
+  // useAuth entrega estado de sesion y acciones para login/registro.
+  const { isAdmin, isAuthenticated, isFirebaseConfigured, login, register } = useAuth()
+  // navigate cambia de pantalla despues de autenticar sin recargar la app.
   const navigate = useNavigate()
+  // location conserva la ruta privada que intento abrir el usuario.
   const location = useLocation()
+  // mode alterna entre formulario de ingreso y formulario de registro.
   const [mode, setMode] = useState('login')
+  // formData mantiene los campos controlados del formulario.
   const [formData, setFormData] = useState({ email: '', password: '' })
+  // error muestra problemas de validacion o Firebase en el formulario.
   const [error, setError] = useState('')
+  // loading bloquea el boton mientras Firebase responde.
   const [loading, setLoading] = useState(false)
+  // from indica a donde volver si el login venia de una ruta protegida.
   const from = location.state?.from?.pathname || '/admin'
 
   if (isAuthenticated) {
-    return <Navigate replace to={from} />
+    return <Navigate replace to={isAdmin ? from : '/productos'} />
   }
 
+  // handleChange sincroniza cada input con formData usando el atributo name.
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((currentData) => ({ ...currentData, [name]: value }))
   }
 
+  // handleSubmit valida datos, ejecuta login/registro y redirige segun rol.
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
@@ -38,11 +48,14 @@ function Login() {
     try {
       setLoading(true)
       if (mode === 'login') {
-        await login(formData.email, formData.password)
+        // profile contiene el rol para decidir si puede volver a /admin.
+        const profile = await login(formData.email, formData.password)
+        navigate(profile.role === 'admin' ? from : '/productos', { replace: true })
       } else {
+        // register siempre crea clientes, por eso luego se navega al catalogo.
         await register(formData.email, formData.password)
+        navigate('/productos', { replace: true })
       }
-      navigate(from, { replace: true })
     } catch {
       setError('No se pudo autenticar el usuario. Revisa email, contrasena y Firebase.')
     } finally {
@@ -54,16 +67,16 @@ function Login() {
     <section className="page-section auth-section login-page">
       <Seo
         title="Acceso"
-        description="Ingreso de usuarios para administrar el catalogo de Universo Geek."
+        description="Ingreso de usuarios para comprar en Universo Geek o administrar el catalogo."
       />
 
       <div className="login-shell">
         <aside className="login-panel">
           <span className="eyebrow">Usuarios</span>
-          <h1>{mode === 'login' ? 'Ingresar al panel' : 'Crear usuario'}</h1>
+          <h1>{mode === 'login' ? 'Ingresar' : 'Crear cliente'}</h1>
           <p>
             Accede a Universo Geek para comprar productos, gestionar el carrito y
-            administrar el catalogo.
+            administrar el catalogo si tu cuenta ya tiene permisos.
           </p>
 
           <div className="login-feature-list" aria-label="Beneficios del acceso">
@@ -91,7 +104,7 @@ function Login() {
 
           <Form className="auth-card login-card" onSubmit={handleSubmit}>
             <div className="login-card-heading">
-              <span>{mode === 'login' ? 'Bienvenido' : 'Nuevo acceso'}</span>
+              <span>{mode === 'login' ? 'Bienvenido' : 'Nuevo cliente'}</span>
               <strong>{mode === 'login' ? 'Login' : 'Registro'}</strong>
             </div>
 

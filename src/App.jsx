@@ -13,6 +13,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
 // Todas las rutas viven dentro de Layout para compartir Header, NavBar y Footer.
 // Las rutas privadas se envuelven con ProtectedRoute para exigir login.
 function App() {
+  // Routes contiene todo el enrutado cliente manejado por react-router-dom.
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -35,7 +36,7 @@ function App() {
         <Route
           path="admin"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="admin">
               <AdminProducts />
             </ProtectedRoute>
           }

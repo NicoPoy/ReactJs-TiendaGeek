@@ -121,6 +121,10 @@
     padding: 18px;
   }
 
+  .catalog-user-greeting {
+    max-width: 100%;
+  }
+
   .category-filters,
   .admin-stats {
     grid-template-columns: 1fr;

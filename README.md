@@ -29,8 +29,10 @@ Firebase.
 - Detalle de producto en ruta dinamica `/producto/:id`.
 - Carrito global con Context API.
 - Login y registro de usuarios.
-- Rutas protegidas para carrito y panel privado.
+- Rutas protegidas para carrito y panel admin.
 - Panel admin para crear, editar, eliminar y listar productos.
+- Roles de usuario: los registros nuevos son clientes y las cuentas anteriores
+  sin perfil siguen entrando como admins.
 - Carga inicial de productos desde `public/productos.json`.
 - Modal de confirmacion antes de eliminar productos.
 - SEO dinamico por pagina.
@@ -70,8 +72,10 @@ La documentacion completa de responsabilidades por archivo esta en
 
 - Usuario sin login: puede ver inicio, catalogo, detalle y login.
 - Usuario sin login: no puede agregar productos al carrito.
-- Usuario autenticado: puede comprar, usar carrito y acceder al panel.
-- Panel admin: permite administrar productos.
+- Usuario cliente: puede comprar y usar carrito.
+- Usuario admin: puede acceder al panel y administrar productos.
+- Todo registro nuevo desde `/login` crea un perfil `client`; no hay registro
+  publico de admins.
 
 ## Instalacion
 
@@ -116,16 +120,46 @@ Firebase debe estar configurado para usar autenticacion y catalogo. Las imagenes
 ## Reglas sugeridas de Firestore
 
 Estas reglas permiten leer el catalogo publicamente y restringen escritura a
-usuarios autenticados:
+admins. Los usuarios nuevos quedan identificados en `users/{uid}` con
+`role: "client"`. Las cuentas viejas que todavia no tengan documento de perfil
+se consideran admins para no bloquear el usuario creado antes de esta regla:
 
 ```txt
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userProfilePath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && (!exists(userProfilePath())
+          || get(userProfilePath()).data.role == "admin");
+    }
+
     match /products/{productId} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == "client";
+      allow update: if false;
+      allow delete: if false;
     }
   }
 }
@@ -190,16 +224,16 @@ Para publicar en Vercel o Netlify:
 - [x] SEO dinamico.
 - [x] CSS dividido por responsabilidad.
 - [x] Firebase real configurado en el entorno de entrega.
-- [ ] Chequear los roles de usuarios y admin, que no se creen admins
+- [x] Chequear los roles de usuarios y admin, que no se creen admins
 - [ ] Deploy publicado y probado.
 
 
 ## Credenciales
-VITE_FIREBASE_API_KEY="AIzaSyB7EFBB4Zn_IJ7_mjm8dBZhBpymek1zOVg"
-VITE_FIREBASE_AUTH_DOMAIN="curso-react-67e7b.firebaseapp.com"
-VITE_FIREBASE_PROJECT_ID="curso-react-67e7b"
-VITE_FIREBASE_MESSAGING_SENDER_ID="393314399948"
-VITE_FIREBASE_APP_ID="1:393314399948:web:13ff01163203059a4df469"
+- VITE_FIREBASE_API_KEY="AIzaSyB7EFBB4Zn_IJ7_mjm8dBZhBpymek1zOVg"
+- VITE_FIREBASE_AUTH_DOMAIN="curso-react-67e7b.firebaseapp.com"
+- VITE_FIREBASE_PROJECT_ID="curso-react-67e7b"
+- VITE_FIREBASE_MESSAGING_SENDER_ID="393314399948"
+- VITE_FIREBASE_APP_ID="1:393314399948:web:13ff01163203059a4df469"
 
 ## Usuarios
 - mail: admin@tiendageek.com pass: admin-tienda-geek-2026
