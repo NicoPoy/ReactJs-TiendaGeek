@@ -33,6 +33,48 @@ import {
 // AdminProducts es el panel privado de administracion.
 // Permite listar, crear, editar, eliminar y cargar productos iniciales.
 const maxImageSizeLabel = `${maxProductImageSize / 1024 / 1024} MB`
+const productFieldLimits = {
+  category: 40,
+  name: 60,
+  description: 140,
+  details: 320,
+  price: 9999999,
+  stock: 999,
+}
+
+function normalizeCategoryName(categoryName) {
+  return String(categoryName).trim().toLowerCase()
+}
+
+function parseCurrencyValue(value) {
+  const normalizedValue = String(value)
+    .replace(/[^\d,.-]/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.')
+  const numericValue = Number(normalizedValue)
+
+  return Number.isFinite(numericValue) ? numericValue : 0
+}
+
+function formatCurrencyInput(value) {
+  const numericValue = typeof value === 'number' ? value : parseCurrencyValue(value)
+
+  if (!numericValue) return ''
+
+  return `$${numericValue.toLocaleString('es-AR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
+}
+function getProductSaveErrorMessage(error) {
+  const fallbackMessage = 'No se pudo guardar el producto. Revisa la imagen y la conexion con Firebase.'
+
+  if (error instanceof Error && error.message) {
+    return `${fallbackMessage} Detalle: ${error.message}`
+  }
+
+  return fallbackMessage
+}
 
 // Estado inicial compartido por alta y edicion de productos.
 const initialFormData = {
@@ -63,8 +105,10 @@ function AdminProducts() {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [formData, setFormData] = useState(initialFormData)
   const [imageFile, setImageFile] = useState(null)
+  const [preparedImage, setPreparedImage] = useState('')
   const [imagePreview, setImagePreview] = useState('')
   const [imageUploadError, setImageUploadError] = useState('')
+  const [imageProcessing, setImageProcessing] = useState(false)
   const [editingProductId, setEditingProductId] = useState(null)
   const [productToDelete, setProductToDelete] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -140,6 +184,15 @@ function AdminProducts() {
 
   const handleChange = (event) => {
     const { name, value } = event.target
+
+    if (name === 'price') {
+      setFormData((currentData) => ({
+        ...currentData,
+        price: formatCurrencyInput(value),
+      }))
+      return
+    }
+
     setFormData((currentData) => ({ ...currentData, [name]: value }))
   }
 
@@ -149,38 +202,57 @@ function AdminProducts() {
       category: productCategories[0]?.name || '',
     })
     setImageFile(null)
+    setPreparedImage('')
     setImagePreview('')
     setImageUploadError('')
+    setImageProcessing(false)
     setEditingProductId(null)
   }
 
-  const handleImageChange = (event) => {
+  const handleImageChange = async (event) => {
     const selectedFile = event.target.files?.[0]
+    const input = event.target
     setImageUploadError('')
+    setPreparedImage('')
     setError('')
 
     if (!selectedFile) {
       setImageFile(null)
       setImagePreview(formData.image)
+      setImageProcessing(false)
       return
     }
 
     if (!acceptedProductImageTypes.includes(selectedFile.type)) {
       setImageFile(null)
       setImageUploadError('La imagen debe ser JPG, PNG o WEBP.')
-      event.target.value = ''
+      input.value = ''
       return
     }
 
     if (selectedFile.size > maxProductImageSize) {
       setImageFile(null)
       setImageUploadError(`La imagen no puede superar ${maxImageSizeLabel}.`)
-      event.target.value = ''
+      input.value = ''
       return
     }
 
-    setImageFile(selectedFile)
-    setImagePreview(URL.createObjectURL(selectedFile))
+    setImageProcessing(true)
+
+    try {
+      const compressedImage = await uploadProductImage(selectedFile)
+      setImageFile(selectedFile)
+      setPreparedImage(compressedImage)
+      setImagePreview(compressedImage)
+    } catch (imageError) {
+      setImageFile(null)
+      setPreparedImage('')
+      setImagePreview(formData.image)
+      setImageUploadError(`No pudimos usar esa imagen. ${imageError instanceof Error ? imageError.message : 'Proba con otro archivo.'}`)
+      input.value = ''
+    } finally {
+      setImageProcessing(false)
+    }
   }
 
   const handleAddCategory = async (event) => {
@@ -194,8 +266,13 @@ function AdminProducts() {
       return
     }
 
+    if (normalizedName.length > productFieldLimits.category) {
+      setError('La categoria no puede superar ' + productFieldLimits.category + ' caracteres.')
+      return
+    }
+
     const categoryExists = productCategories.some(
-      (category) => category.name.toLowerCase() === normalizedName.toLowerCase(),
+      (category) => normalizeCategoryName(category.name) === normalizeCategoryName(normalizedName),
     )
 
     if (categoryExists) {
@@ -258,12 +335,20 @@ function AdminProducts() {
   // Validaciones minimas pedidas para evitar productos incompletos.
   const validateForm = () => {
     if (!formData.name.trim()) return 'El nombre es obligatorio.'
+    if (formData.name.trim().length > productFieldLimits.name) return 'El nombre no puede superar ' + productFieldLimits.name + ' caracteres.'
     if (!formData.category) return 'Agrega o selecciona una categoria.'
+    if (imageProcessing) return 'Espera a que terminemos de revisar la imagen.'
     if (!imageFile && !formData.image.trim()) return 'Selecciona una imagen del producto.'
+    if (imageFile && !preparedImage) return 'Selecciona la imagen nuevamente.'
     if (!formData.description.trim()) return 'La descripcion corta es obligatoria.'
+    if (formData.description.trim().length > productFieldLimits.description) return 'La descripcion corta no puede superar ' + productFieldLimits.description + ' caracteres.'
     if (!formData.details.trim()) return 'El detalle del producto es obligatorio.'
-    if (Number(formData.price) <= 0) return 'El precio debe ser mayor a 0.'
-    if (Number(formData.stock) < 0) return 'El stock no puede ser negativo.'
+    if (formData.details.trim().length > productFieldLimits.details) return 'El detalle no puede superar ' + productFieldLimits.details + ' caracteres.'
+    const priceValue = parseCurrencyValue(formData.price)
+    if (priceValue <= 0) return 'El precio debe ser mayor a 0.'
+    if (priceValue > productFieldLimits.price) return 'El precio no puede superar ' + productFieldLimits.price + '.'
+    if (Number(formData.stock) <= 0) return 'El stock debe ser mayor a 0.'
+    if (Number(formData.stock) > productFieldLimits.stock) return 'El stock no puede superar ' + productFieldLimits.stock + ' unidades.'
     if (imageUploadError) return imageUploadError
     return ''
   }
@@ -282,7 +367,7 @@ function AdminProducts() {
     try {
       setSaving(true)
       const imageUrl = imageFile
-        ? await uploadProductImage(imageFile)
+        ? preparedImage
         : formData.image.trim()
 
       const payload = {
@@ -291,7 +376,7 @@ function AdminProducts() {
         image: imageUrl,
         description: formData.description.trim(),
         details: formData.details.trim(),
-        price: Number(formData.price),
+        price: parseCurrencyValue(formData.price),
         stock: Number(formData.stock),
       }
 
@@ -309,8 +394,8 @@ function AdminProducts() {
         setSuccess('Producto agregado correctamente.')
       }
       resetForm()
-    } catch {
-      setError('No se pudo guardar el producto. Revisa la imagen y la conexion con Firebase.')
+    } catch (saveError) {
+      setError(getProductSaveErrorMessage(saveError))
     } finally {
       setSaving(false)
     }
@@ -321,15 +406,17 @@ function AdminProducts() {
     setFormData({
       name: product.name,
       category: product.category,
-      price: product.price,
+      price: formatCurrencyInput(product.price),
       stock: product.stock,
       image: product.image,
       description: product.description,
       details: product.details,
     })
     setImageFile(null)
+    setPreparedImage('')
     setImagePreview(product.image)
     setImageUploadError('')
+    setImageProcessing(false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -421,8 +508,8 @@ function AdminProducts() {
 
       {!isFirebaseConfigured && (
         <Alert variant="warning">
-          Firebase no esta configurado. Este panel requiere Authentication,
-          Firestore y Storage reales.
+          Firebase no esta configurado. Este panel requiere Authentication y
+          Firestore reales.
         </Alert>
       )}
 
@@ -440,8 +527,12 @@ function AdminProducts() {
 
         <Form className="category-form" onSubmit={handleAddCategory}>
           <Form.Group controlId="new-category">
-            <Form.Label>Nueva categoria</Form.Label>
+            <div className="field-heading">
+              <Form.Label>Nueva categoria</Form.Label>
+              <Form.Text>Se muestra como filtro del catalogo. Maximo {productFieldLimits.category} caracteres.</Form.Text>
+            </div>
             <Form.Control
+              maxLength={productFieldLimits.category}
               placeholder="Ej: Consolas, Comics, Merchandising..."
               value={newCategoryName}
               onChange={(event) => setNewCategoryName(event.target.value)}
@@ -519,12 +610,23 @@ function AdminProducts() {
 
         <div className="form-grid">
           <Form.Group controlId="name">
-            <Form.Label>Nombre</Form.Label>
-            <Form.Control name="name" value={formData.name} onChange={handleChange} />
+            <div className="field-heading">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Text>Se muestra como titulo en catalogo y detalle. Maximo {productFieldLimits.name} caracteres.</Form.Text>
+            </div>
+            <Form.Control
+              maxLength={productFieldLimits.name}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+            />
           </Form.Group>
 
           <Form.Group controlId="category">
-            <Form.Label>Categoria</Form.Label>
+            <div className="field-heading">
+              <Form.Label>Categoria</Form.Label>
+              <Form.Text>Se muestra como filtro y etiqueta del producto.</Form.Text>
+            </div>
             <Form.Select
               disabled={productCategories.length === 0}
               name="category"
@@ -540,20 +642,29 @@ function AdminProducts() {
           </Form.Group>
 
           <Form.Group controlId="price">
-            <Form.Label>Precio</Form.Label>
+            <div className="field-heading">
+              <Form.Label>Precio</Form.Label>
+              <Form.Text>Se muestra en tarjetas, detalle y carrito.</Form.Text>
+            </div>
             <Form.Control
-              min="1"
+              inputMode="decimal"
+              maxLength="18"
               name="price"
-              type="number"
+              placeholder="$15.000,00"
+              type="text"
               value={formData.price}
               onChange={handleChange}
             />
           </Form.Group>
 
           <Form.Group controlId="stock">
-            <Form.Label>Stock</Form.Label>
+            <div className="field-heading">
+              <Form.Label>Stock</Form.Label>
+              <Form.Text>Se muestra en el detalle y limita compras. Maximo {productFieldLimits.stock}.</Form.Text>
+            </div>
             <Form.Control
-              min="0"
+              max={productFieldLimits.stock}
+              min="1"
               name="stock"
               type="number"
               value={formData.stock}
@@ -563,13 +674,17 @@ function AdminProducts() {
         </div>
 
         <Form.Group className="mt-3" controlId="product-image">
-          <Form.Label>Imagen</Form.Label>
+          <div className="field-heading">
+            <Form.Label>Imagen</Form.Label>
+            <Form.Text>Se muestra en catalogo, detalle y carrito.</Form.Text>
+          </div>
           <div className="image-upload-box">
             <label className="image-upload-drop" htmlFor="product-image-input">
               <FiImage aria-hidden="true" />
               <strong>Elegir imagen desde tu computadora</strong>
               <span>JPG, PNG o WEBP. Maximo {maxImageSizeLabel}.</span>
-              {imageFile && <small>{imageFile.name}</small>}
+              {imageProcessing && <small>Revisando imagen...</small>}
+              {!imageProcessing && imageFile && <small>{imageFile.name}</small>}
             </label>
             <input
               accept={acceptedProductImageTypes.join(',')}
@@ -578,20 +693,29 @@ function AdminProducts() {
               type="file"
               onChange={handleImageChange}
             />
-            {imagePreview && (
-              <div className="image-preview">
+            <div className={`image-preview${!imagePreview || imageProcessing ? ' empty' : ''}`}>
+              {imagePreview && !imageProcessing ? (
                 <img src={imagePreview} alt="Vista previa del producto" />
-                <span>{imageFile ? 'Vista previa' : 'Imagen actual'}</span>
-              </div>
-            )}
+              ) : (
+                <div className="image-preview-placeholder">
+                  <FiImage aria-hidden="true" />
+                  <span>Sin imagen</span>
+                </div>
+              )}
+              <span>{imagePreview && !imageProcessing ? (imageFile ? 'Vista previa' : 'Imagen actual') : 'Vista previa'}</span>
+            </div>
           </div>
           {imageUploadError && <p className="form-error">{imageUploadError}</p>}
         </Form.Group>
 
         <Form.Group className="mt-3" controlId="description">
-          <Form.Label>Descripcion corta</Form.Label>
+          <div className="field-heading">
+            <Form.Label>Descripcion corta</Form.Label>
+            <Form.Text>Se muestra en las tarjetas del catalogo. Maximo {productFieldLimits.description} caracteres.</Form.Text>
+          </div>
           <Form.Control
             as="textarea"
+            maxLength={productFieldLimits.description}
             name="description"
             rows={2}
             value={formData.description}
@@ -600,9 +724,13 @@ function AdminProducts() {
         </Form.Group>
 
         <Form.Group className="mt-3" controlId="details">
-          <Form.Label>Detalle</Form.Label>
+          <div className="field-heading">
+            <Form.Label>Detalle</Form.Label>
+            <Form.Text>Se muestra en la pagina individual del producto. Maximo {productFieldLimits.details} caracteres.</Form.Text>
+          </div>
           <Form.Control
             as="textarea"
+            maxLength={productFieldLimits.details}
             name="details"
             rows={3}
             value={formData.details}
@@ -611,7 +739,7 @@ function AdminProducts() {
         </Form.Group>
 
         <div className="form-actions">
-          <button className="button" disabled={saving} type="submit">
+          <button className="button" disabled={saving || imageProcessing} type="submit">
             {saving ? <Spinner animation="border" size="sm" /> : <FiPlus aria-hidden="true" />}
             {isEditing ? 'Guardar cambios' : 'Agregar producto'}
           </button>

@@ -4,18 +4,47 @@ import Seo from '../components/seo/Seo.jsx'
 import { getProducts } from '../services/productService.js'
 
 // ItemListContainer es la pantalla de catalogo.
-// Carga productos desde el servicio, aplica busqueda, categoria y paginacion.
-// Categorias disponibles para filtrar el catalogo.
-// Deben coincidir con los valores category guardados en Firestore.
-const categories = ['Todos', 'Perifericos', 'Setup', 'Rol', 'Coleccion']
-const productsPerPage = 8
+// Carga productos desde el servicio, aplica busqueda, categoria, orden y paginacion.
+const allCategoriesLabel = 'Todos'
+const defaultProductsPerPage = 6
+const productsPerPageOptions = [6, 9, 12, 24]
+
+const sortOptions = [
+  { label: 'Mas nuevos', value: 'newest' },
+  { label: 'Nombre A-Z', value: 'name-asc' },
+  { label: 'Precio menor', value: 'price-asc' },
+  { label: 'Precio mayor', value: 'price-desc' },
+]
+
+const sortProducts = (products, sortOrder) => {
+  const sortedProducts = [...products]
+
+  if (sortOrder === 'name-asc') {
+    return sortedProducts.sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  if (sortOrder === 'price-asc') {
+    return sortedProducts.sort((a, b) => a.price - b.price)
+  }
+
+  if (sortOrder === 'price-desc') {
+    return sortedProducts.sort((a, b) => b.price - a.price)
+  }
+
+  return sortedProducts.sort((a, b) => {
+    const dateDifference = (b.createdAtTime ?? 0) - (a.createdAtTime ?? 0)
+    return dateDifference || a.name.localeCompare(b.name)
+  })
+}
 
 function ItemListContainer() {
   // products guarda el listado completo recibido desde Firestore.
   const [products, setProducts] = useState([])
   // selectedCategory controla que filtro esta activo en la vista.
-  const [selectedCategory, setSelectedCategory] = useState('Todos')
+  const [selectedCategory, setSelectedCategory] = useState(allCategoriesLabel)
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortOrder, setSortOrder] = useState('newest')
+  const [productsPerPage, setProductsPerPage] = useState(defaultProductsPerPage)
   const [currentPage, setCurrentPage] = useState(1)
   // loading y error permiten mostrar mensajes mientras se carga o si falla el fetch.
   const [loading, setLoading] = useState(true)
@@ -31,15 +60,29 @@ function ItemListContainer() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [selectedCategory, searchTerm])
+  }, [selectedCategory, searchTerm, sortOrder, productsPerPage])
+
+  const categories = useMemo(() => {
+    const productCategories = products
+      .map((product) => product.category)
+      .filter(Boolean)
+      .filter((category, index, currentCategories) =>
+        currentCategories.findIndex(
+          (currentCategory) => currentCategory.toLowerCase() === category.toLowerCase(),
+        ) === index,
+      )
+      .sort((a, b) => a.localeCompare(b))
+
+    return [allCategoriesLabel, ...productCategories]
+  }, [products])
 
   const filteredProducts = useMemo(() => {
     // Filtrado derivado: no modifica la lista original de productos.
     const normalizedSearch = searchTerm.trim().toLowerCase()
 
-    return products.filter((product) => {
+    const matchingProducts = products.filter((product) => {
       const matchesCategory =
-        selectedCategory === 'Todos' || product.category === selectedCategory
+        selectedCategory === allCategoriesLabel || product.category === selectedCategory
       const matchesSearch =
         !normalizedSearch ||
         product.name.toLowerCase().includes(normalizedSearch) ||
@@ -48,8 +91,12 @@ function ItemListContainer() {
 
       return matchesCategory && matchesSearch
     })
-  }, [products, searchTerm, selectedCategory])
 
+    return sortProducts(matchingProducts, sortOrder)
+  }, [products, searchTerm, selectedCategory, sortOrder])
+
+  const selectedSortLabel =
+    sortOptions.find((sortOption) => sortOption.value === sortOrder)?.label || 'Mas nuevos'
   const totalPages = Math.max(Math.ceil(filteredProducts.length / productsPerPage), 1)
   const firstProductIndex = (currentPage - 1) * productsPerPage
   const paginatedProducts = filteredProducts.slice(
@@ -89,6 +136,36 @@ function ItemListContainer() {
                   onChange={(event) => setSearchTerm(event.target.value)}
                 />
               </label>
+
+              <label className="sort-control" htmlFor="product-sort">
+                <span>Ordenar por</span>
+                <select
+                  id="product-sort"
+                  value={sortOrder}
+                  onChange={(event) => setSortOrder(event.target.value)}
+                >
+                  {sortOptions.map((sortOption) => (
+                    <option key={sortOption.value} value={sortOption.value}>
+                      {sortOption.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="sort-control" htmlFor="products-per-page">
+                <span>Productos por pagina</span>
+                <select
+                  id="products-per-page"
+                  value={productsPerPage}
+                  onChange={(event) => setProductsPerPage(Number(event.target.value))}
+                >
+                  {productsPerPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             {/* Botonera de filtros. Cada click cambia la categoria activa. */}
@@ -115,7 +192,7 @@ function ItemListContainer() {
             <span>
               Mostrando {paginatedProducts.length} de {filteredProducts.length} productos
             </span>
-            <span>{selectedCategory}</span>
+            <span>{selectedCategory} - {selectedSortLabel}</span>
           </div>
 
           {loading && <p className="status-message inline-status">Cargando productos...</p>}
@@ -164,4 +241,3 @@ function ItemListContainer() {
 }
 
 export default ItemListContainer
-

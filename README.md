@@ -97,9 +97,9 @@ http://localhost:5173
 2. Crear una app web dentro del proyecto.
 3. Activar Authentication con proveedor Email/Password.
 4. Crear una base de datos Firestore.
-5. Activar Firebase Storage para subir imagenes de productos.
-6. Copiar .env.example como .env.
-7. Completar .env con los datos reales del proyecto.
+5. Copiar .env.example como .env.
+6. Completar .env con los datos reales del proyecto.
+
 
 Variables esperadas:
 
@@ -107,12 +107,11 @@ Variables esperadas:
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 ```
 
-Firebase debe estar configurado para usar autenticacion y catalogo. La app no usa datos locales para simular usuarios o productos.
+Firebase debe estar configurado para usar autenticacion y catalogo. Las imagenes cargadas desde el panel se comprimen y se guardan en Firestore como data URL para no depender de Firebase Storage.
 
 ## Reglas sugeridas de Firestore
 
@@ -133,26 +132,6 @@ service cloud.firestore {
 ```
 
 
-## Reglas sugeridas de Storage
-
-Estas reglas permiten leer imagenes publicamente y restringen la subida de
-imagenes a usuarios autenticados. Tambien limitan cada archivo a 1 MB y a
-formatos de imagen compatibles con el panel admin:
-
-```txt
-rules_version = '2';
-
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /product-images/{imageId} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && request.resource.size < 1 * 1024 * 1024
-        && request.resource.contentType.matches('image/(jpeg|png|webp)');
-    }
-  }
-}
-```
 ## Cargar productos iniciales
 
 1. Ejecutar el proyecto.
@@ -218,6 +197,8 @@ Para publicar en Vercel o Netlify:
 VITE_FIREBASE_API_KEY="AIzaSyB7EFBB4Zn_IJ7_mjm8dBZhBpymek1zOVg"
 VITE_FIREBASE_AUTH_DOMAIN="curso-react-67e7b.firebaseapp.com"
 VITE_FIREBASE_PROJECT_ID="curso-react-67e7b"
-VITE_FIREBASE_STORAGE_BUCKET="curso-react-67e7b.firebasestorage.app"
 VITE_FIREBASE_MESSAGING_SENDER_ID="393314399948"
 VITE_FIREBASE_APP_ID="1:393314399948:web:13ff01163203059a4df469"
+
+## Usuarios
+- mail: admin@tiendageek.com pass: admin-tienda-geek-2026

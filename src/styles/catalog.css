@@ -1,4 +1,4 @@
-﻿/* Estilos exclusivos del catalogo: encabezado, sidebar, busqueda, filtros y paginacion. */
+/* Estilos exclusivos del catalogo: encabezado, sidebar, busqueda, filtros y paginacion. */
 .catalog-page {
   width: min(1120px, calc(100% - 32px));
   padding-top: 72px;
@@ -109,14 +109,16 @@
   margin: 0;
 }
 
-.search-control {
+.search-control,
+.sort-control {
   display: grid;
   gap: 8px;
   color: #d7deea;
   font-weight: 800;
 }
 
-.search-control input {
+.search-control input,
+.sort-control select {
   width: 100%;
   min-width: 0;
   min-height: 44px;
@@ -128,7 +130,8 @@
   padding: 10px 14px;
 }
 
-.search-control input:focus {
+.search-control input:focus,
+.sort-control select:focus {
   border-color: #5eead4;
   box-shadow:
     0 0 0 3px rgba(94, 234, 212, 0.18),
