@@ -63,7 +63,7 @@ function Home() {
         <div className="hero-content">
           <div className="hero-text">
             <span className="eyebrow">Bienvenido a Universo Geek</span>
-            <h1>Tu universo geek, tu propio estilo</h1>
+            <h1>Tu espacio ideal, tu propio estilo</h1>
             <p>
               Explorá las mejores figuras oficiales de tus sagas favoritas, periféricos de alto rendimiento y accesorios exclusivos para armar tu rincón ideal.
             </p>
