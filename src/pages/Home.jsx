@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { FiTruck, FiShield, FiAward, FiUsers, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiTruck, FiShield, FiAward, FiUsers, FiChevronLeft, FiChevronRight, FiChevronDown } from 'react-icons/fi'
 import Seo from '../components/seo/Seo.jsx'
 import { getProducts } from '../services/productService.js'
 import Item from '../components/products/Item.jsx'
@@ -47,6 +47,10 @@ function Home() {
     }
   }
 
+  const scrollToFeatures = () => {
+    document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
   return (
     <>
       <Seo
@@ -59,9 +63,9 @@ function Home() {
         <div className="hero-content">
           <div className="hero-text">
             <span className="eyebrow">Bienvenido a Universo Geek</span>
-            <h1>Llevá tu espacio al siguiente nivel</h1>
+            <h1>Tu universo geek, tu propio estilo</h1>
             <p>
-              Figuras de colección, periféricos premium, dados de rol exclusivos y todo el setup que necesitás para reflejar tu identidad gamer.
+              Explorá las mejores figuras oficiales de tus sagas favoritas, periféricos de alto rendimiento y accesorios exclusivos para armar tu rincón ideal.
             </p>
             <Link className="button button-glow" to="/productos">
               Explorar Catálogo
@@ -75,10 +79,13 @@ function Home() {
             />
           </div>
         </div>
+        <button onClick={scrollToFeatures} className="scroll-down-btn" aria-label="Ver contenido de abajo">
+          <FiChevronDown />
+        </button>
       </section>
 
       {/* Características / Beneficios */}
-      <section className="home-section">
+      <section id="features-section" className="home-section">
         <div className="section-header">
           <h2>¿Por qué Universo Geek?</h2>
           <p>Ofrecemos la mejor experiencia para coleccionistas y entusiastas del gaming.</p>
