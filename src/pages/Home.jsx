@@ -1,34 +1,177 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { FiTruck, FiShield, FiAward, FiUsers, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import Seo from '../components/seo/Seo.jsx'
+import { getProducts } from '../services/productService.js'
+import Item from '../components/products/Item.jsx'
 
-// Home es la pantalla inicial.
-// Presenta la identidad de Universo Geek y deriva al usuario hacia el catalogo.
 function Home() {
+  const [featuredProducts, setFeaturedProducts] = useState([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        // Ordenamos por fecha de creación de manera descendente (los más nuevos primero) y limitamos a 6
+        const sorted = [...data].sort((a, b) => (b.createdAtTime ?? 0) - (a.createdAtTime ?? 0))
+        setFeaturedProducts(sorted.slice(0, 6))
+      })
+      .catch((err) => {
+        console.error('Error al cargar productos destacados:', err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
+
+  const nextProducts = () => {
+    if (currentIndex + 3 < featuredProducts.length) {
+      setCurrentIndex((prev) => prev + 3)
+    } else {
+      // Volvemos al inicio si no hay más
+      setCurrentIndex(0)
+    }
+  }
+
+  const prevProducts = () => {
+    if (currentIndex - 3 >= 0) {
+      setCurrentIndex((prev) => prev - 3)
+    } else {
+      // Ir a la última tanda de 3
+      const remainder = featuredProducts.length % 3
+      const lastIndex = remainder === 0 
+        ? featuredProducts.length - 3 
+        : featuredProducts.length - remainder
+      setCurrentIndex(lastIndex >= 0 ? lastIndex : 0)
+    }
+  }
+
   return (
-    <section className="hero">
+    <>
       <Seo
         title="Inicio"
         description="Ecommerce geek con figuras de coleccion, accesorios gamer, productos de rol y objetos de setup."
       />
-      <div className="hero-content">
-        <span className="eyebrow">Bienvenido</span>
-        {/* Logo principal creado para darle identidad a Universo Geek. */}
-        <img
-          className="hero-logo"
-          src="/images/universo-geek-logo.png"
-          alt="Universo Geek"
-        />
-        <h1 className="sr-only">Universo Geek</h1>
-        <p>
-          Figuras de coleccion, accesorios gamer, productos para rol y objetos
-          de setup para darle identidad a tu espacio geek.
-        </p>
-        {/* Link interno: navega sin recargar la pagina gracias a react-router-dom. */}
-        <Link className="button" to="/productos">
-          Ver productos
-        </Link>
-      </div>
-    </section>
+
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="hero-content">
+          <div className="hero-text">
+            <span className="eyebrow">Bienvenido a Universo Geek</span>
+            <h1>Llevá tu espacio al siguiente nivel</h1>
+            <p>
+              Figuras de colección, periféricos premium, dados de rol exclusivos y todo el setup que necesitás para reflejar tu identidad gamer.
+            </p>
+            <Link className="button button-glow" to="/productos">
+              Explorar Catálogo
+            </Link>
+          </div>
+          <div className="hero-media-wrapper">
+            <img
+              className="hero-logo-glowing"
+              src="/images/universo-geek-logo.png"
+              alt="Universo Geek Logo"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Características / Beneficios */}
+      <section className="home-section">
+        <div className="section-header">
+          <h2>¿Por qué Universo Geek?</h2>
+          <p>Ofrecemos la mejor experiencia para coleccionistas y entusiastas del gaming.</p>
+        </div>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon-wrapper">
+              <FiTruck aria-hidden="true" />
+            </div>
+            <h3>Envíos a todo el país</h3>
+            <p>Embalajes súper protegidos para que tus figuras y periféricos lleguen impecables.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon-wrapper">
+              <FiShield aria-hidden="true" />
+            </div>
+            <h3>Pago 100% Seguro</h3>
+            <p>Múltiples opciones de pago con encriptación para resguardar tus datos.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon-wrapper">
+              <FiAward aria-hidden="true" />
+            </div>
+            <h3>Calidad Premium</h3>
+            <p>Garantía de originalidad en todas nuestras figuras y accesorios.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon-wrapper">
+              <FiUsers aria-hidden="true" />
+            </div>
+            <h3>Comunidad Activa</h3>
+            <p>Sumate a nuestro Discord y compartí fotos de tu setup con otros fanáticos.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Productos Destacados en Carrusel */}
+      <section className="home-section">
+        <div className="section-header-carousel">
+          <div className="section-header-text">
+            <h2>Novedades Destacadas</h2>
+            <p>Descubrí los últimos lanzamientos agregados a nuestra tienda.</p>
+          </div>
+          {!loading && featuredProducts.length > 3 && (
+            <div className="carousel-controls">
+              <button onClick={prevProducts} className="carousel-control-btn" aria-label="Productos anteriores">
+                <FiChevronLeft />
+              </button>
+              <button onClick={nextProducts} className="carousel-control-btn" aria-label="Siguientes productos">
+                <FiChevronRight />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {loading ? (
+          <div className="featured-products-skeleton">
+            <div className="skeleton-card" aria-hidden="true"></div>
+            <div className="skeleton-card" aria-hidden="true"></div>
+            <div className="skeleton-card" aria-hidden="true"></div>
+          </div>
+        ) : (
+          <div className="featured-products-grid-wrapper">
+            <div className="featured-products-grid">
+              {featuredProducts.slice(currentIndex, currentIndex + 3).map((product) => (
+                <Item key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Newsletter / Comunidad */}
+      <section className="home-section">
+        <div className="newsletter-card">
+          <div className="newsletter-content">
+            <h2>Unite a la Resistencia</h2>
+            <p>Dejanos tu email y sé el primero en enterarte de las preventas exclusivas, ofertas flash y lanzamientos limitados.</p>
+            <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="Tu email geek..."
+                className="newsletter-input"
+                required
+              />
+              <button type="submit" className="newsletter-btn">
+                Suscribirme
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </>
   )
 }
 
