@@ -14,7 +14,7 @@ export function withFirebaseTimeout(promise, actionName) {
   // timeout rechaza con un mensaje contextual segun la accion que estaba haciendo el usuario.
   const timeout = new Promise((_, reject) => {
     timeoutId = window.setTimeout(() => {
-      reject(new Error(`${actionName} tardo demasiado. Revisa tu conexion y Firebase.`))
+      reject(new Error(`${actionName} tardo demasiado. Revisa tu conexion e intenta nuevamente.`))
     }, firebaseRequestTimeoutMs)
   })
 
@@ -24,7 +24,7 @@ export function withFirebaseTimeout(promise, actionName) {
 // Verifica que Firestore exista antes de leer o escribir datos del catalogo.
 export function assertFirestoreReady() {
   if (!isFirebaseConfigured || !db) {
-    throw new Error('Firestore no esta configurado.')
+    throw new Error('El servicio de catalogo no esta disponible.')
   }
 }
 

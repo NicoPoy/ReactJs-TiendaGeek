@@ -1,11 +1,7 @@
 /* Ajustes para pantallas medianas: evita que el sidebar tape el catalogo. */
 @media (max-width: 980px) {
   .login-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .login-panel {
-    min-height: 360px;
+    padding: 44px 0;
   }
 
   .catalog-layout {
@@ -18,6 +14,11 @@
 
   .sidebar-panel {
     gap: 18px;
+  }
+
+  .catalog-results .product-grid,
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .category-filters {
@@ -34,6 +35,14 @@
 
   .admin-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-table-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-table-search {
+    grid-column: 1 / -1;
   }
 
   .category-list {
@@ -86,6 +95,15 @@
     padding: 22px;
   }
 
+  .catalog-search-control {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-search-control input {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
   .category-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -133,10 +151,16 @@
     padding: 18px;
   }
 
+  .catalog-search-panel {
+    padding: 14px;
+  }
+
   .catalog-user-greeting {
     max-width: 100%;
   }
 
+  .catalog-results .product-grid,
+  .product-grid,
   .category-filters,
   .admin-stats {
     grid-template-columns: 1fr;
@@ -145,6 +169,15 @@
   .admin-hero,
   .admin-form {
     padding: 20px;
+  }
+
+  .admin-form .form-actions {
+    margin: 22px -20px -20px;
+    padding: 16px 20px 18px;
+  }
+
+  .admin-submit-button {
+    width: 100%;
   }
 
   .category-list {
@@ -156,17 +189,48 @@
     flex-direction: column;
   }
 
-  .login-page {
-    padding: 40px 0;
-  }
-
-  .login-panel,
-  .login-card {
-    padding: 20px;
-  }
-
-  .login-feature-list {
+  .admin-table-filters {
     grid-template-columns: 1fr;
+  }
+
+  .admin-table-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-table-pagination div {
+    flex-direction: column;
+  }
+
+  .login-page {
+    padding: 0;
+  }
+
+  .confirm-brand {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .confirm-brand img {
+    margin: 0 auto;
+  }
+
+  .login-shell {
+    padding: 34px 0;
+  }
+
+  .login-brand-header {
+    min-height: 110px;
+    padding: 18px;
+  }
+
+  .login-card {
+    padding: 18px;
+  }
+
+  .login-card-heading {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .about-modal-content {
@@ -190,6 +254,14 @@
     width: 100%;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

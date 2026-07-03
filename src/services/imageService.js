@@ -76,7 +76,7 @@ async function compressImageFile(file) {
     }
   }
 
-  throw new Error('La imagen es demasiado pesada para guardarla gratis en Firestore. Proba con una imagen mas chica o mas liviana.')
+  throw new Error('La imagen es demasiado pesada. Proba con una imagen mas chica o mas liviana.')
 }
 
 // uploadProductImage prepara una imagen para guardarla gratis dentro del producto en Firestore.

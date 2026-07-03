@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Modal } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { FiCheckCircle, FiPackage, FiShield, FiShoppingBag, FiTruck } from 'react-icons/fi'
 import Seo from '../components/seo/Seo.jsx'
@@ -15,6 +16,7 @@ function Cart() {
   const { user } = useAuth()
   // completedOrder guarda una copia congelada del pedido luego de comprar.
   const [completedOrder, setCompletedOrder] = useState(null)
+  const [showPurchaseConfirm, setShowPurchaseConfirm] = useState(false)
 
   // handleFakePurchase arma un comprobante local, limpia el carrito y muestra agradecimiento.
   const handleFakePurchase = () => {
@@ -248,7 +250,7 @@ function Cart() {
             <FiTruck aria-hidden="true" />
             <span>Compra ficticia para la entrega final, sin cobro real.</span>
           </div>
-          <button className="button" type="button" onClick={handleFakePurchase}>
+          <button className="button" type="button" onClick={() => setShowPurchaseConfirm(true)}>
             Comprar
           </button>
           <button className="button button-secondary" type="button" onClick={clearCart}>
@@ -256,8 +258,53 @@ function Cart() {
           </button>
         </aside>
       </div>
+
+      <Modal
+        centered
+        className="game-confirm-modal cart-confirm-modal"
+        show={showPurchaseConfirm}
+        onHide={() => setShowPurchaseConfirm(false)}
+      >
+        <Modal.Header closeButton>
+          <div className="confirm-brand">
+            <img src="/images/universo-geek-logo.png" alt="Universo Geek" />
+            <div>
+              <span>Confirmacion de compra</span>
+              <Modal.Title>Finalizar pedido</Modal.Title>
+            </div>
+          </div>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Vas a confirmar {totalItems} producto(s) por ${totalPrice.toLocaleString('es-AR')}.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <button
+            className="button button-secondary"
+            type="button"
+            onClick={() => setShowPurchaseConfirm(false)}
+          >
+            Cancelar
+          </button>
+          <button
+            className="button confirm-primary"
+            type="button"
+            onClick={() => {
+              setShowPurchaseConfirm(false)
+              handleFakePurchase()
+            }}
+          >
+            <FiCheckCircle aria-hidden="true" />
+            Confirmar compra
+          </button>
+        </Modal.Footer>
+      </Modal>
     </section>
   )
 }
 
 export default Cart
+
+
+

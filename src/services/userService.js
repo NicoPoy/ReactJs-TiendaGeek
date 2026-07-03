@@ -12,7 +12,7 @@ export const userRoles = {
 // Evita consultar perfiles si Firestore no fue configurado en el entorno.
 function assertFirestoreReady() {
   if (!isFirebaseConfigured || !db) {
-    throw new Error('Firestore no esta configurado.')
+    throw new Error('El servicio de usuarios no esta disponible.')
   }
 }
 

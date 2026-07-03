@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Alert, Form, Modal, Spinner, Table } from 'react-bootstrap'
 import {
+  FiAlertTriangle,
+  FiCheckCircle,
   FiDatabase,
   FiEdit3,
   FiFolderPlus,
   FiImage,
+  FiSearch,
+  FiInfo,
   FiLogOut,
   FiPackage,
   FiPlus,
@@ -34,6 +38,8 @@ import {
 // Permite listar, crear, editar, eliminar y cargar productos iniciales.
 // maxImageSizeLabel formatea el limite tecnico en un texto entendible para errores.
 const maxImageSizeLabel = `${maxProductImageSize / 1024 / 1024} MB`
+const allProductsLabel = 'Todos'
+const adminTablePageSize = 5
 // productFieldLimits centraliza reglas de validacion para no repetir numeros en el formulario.
 const productFieldLimits = {
   category: 40,
@@ -63,22 +69,39 @@ function parseCurrencyValue(value) {
 }
 
 // formatCurrencyInput muestra el precio como moneda mientras se escribe o edita.
-function formatCurrencyInput(value) {
+function formatCurrencyInput(value, { preserveUserCents = false } = {}) {
+  if (preserveUserCents) {
+    const cleanValue = String(value).replace(/[^\d,]/g, '')
+    const [integerValue = '', centsValue = ''] = cleanValue.split(',')
+    const integerDigits = integerValue.replace(/\D/g, '')
+
+    if (!integerDigits) return ''
+
+    const formattedInteger = Number(integerDigits).toLocaleString('es-AR')
+
+    if (cleanValue.includes(',')) {
+      return `$${formattedInteger},${centsValue.replace(/\D/g, '').slice(0, 2)}`
+    }
+
+    return `$${formattedInteger}`
+  }
+
   // numericValue acepta tanto numeros de Firestore como strings del input.
   const numericValue = typeof value === 'number' ? value : parseCurrencyValue(value)
 
   if (!numericValue) return ''
 
+  const showCents = !Number.isInteger(numericValue)
+
   return `$${numericValue.toLocaleString('es-AR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: showCents ? 2 : 0,
+    maximumFractionDigits: showCents ? 2 : 0,
   })}`
 }
-
 // getProductSaveErrorMessage agrega detalle tecnico cuando Firebase o imagen devuelven Error.
 function getProductSaveErrorMessage(error) {
   // fallbackMessage es el mensaje base para no exponer errores crudos sin contexto.
-  const fallbackMessage = 'No se pudo guardar el producto. Revisa la imagen y la conexion con Firebase.'
+  const fallbackMessage = 'No se pudo guardar el producto. Revisa la imagen y la conexion.'
 
   if (error instanceof Error && error.message) {
     return `${fallbackMessage} Detalle: ${error.message}`
@@ -132,8 +155,6 @@ function AdminProducts() {
   const [imageProcessing, setImageProcessing] = useState(false)
   // editingProductId indica si el formulario esta editando o creando.
   const [editingProductId, setEditingProductId] = useState(null)
-  // productToDelete guarda el producto seleccionado para el modal de confirmacion.
-  const [productToDelete, setProductToDelete] = useState(null)
   // loading cubre la carga inicial de productos/categorias.
   const [loading, setLoading] = useState(true)
   // saving cubre operaciones de escritura para deshabilitar acciones duplicadas.
@@ -142,16 +163,57 @@ function AdminProducts() {
   const [error, setError] = useState('')
   // success confirma acciones completadas sin salir de la pantalla.
   const [success, setSuccess] = useState('')
+  const [tableSearchTerm, setTableSearchTerm] = useState('')
+  const [tableCategoryFilter, setTableCategoryFilter] = useState(allProductsLabel)
+  const [tableStockFilter, setTableStockFilter] = useState('all')
+  const [tablePage, setTablePage] = useState(1)
+  const [confirmAction, setConfirmAction] = useState(null)
 
   // isEditing simplifica condicionales de titulo, boton y submit.
   const isEditing = Boolean(editingProductId)
 
+  const closeConfirmAction = () => {
+    if (!saving) setConfirmAction(null)
+  }
+
+  const handleConfirmAction = async () => {
+    if (!confirmAction) return
+    await confirmAction.onConfirm()
+    setConfirmAction(null)
+  }
   // sortedProducts ordena la tabla alfabeticamente sin mutar el estado original.
   const sortedProducts = useMemo(
     () => [...products].sort((a, b) => a.name.localeCompare(b.name)),
     [products],
   )
 
+  const filteredTableProducts = useMemo(() => {
+    const normalizedSearch = tableSearchTerm.trim().toLowerCase()
+
+    return sortedProducts.filter((product) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        product.name.toLowerCase().includes(normalizedSearch) ||
+        product.category.toLowerCase().includes(normalizedSearch) ||
+        product.description.toLowerCase().includes(normalizedSearch)
+      const matchesCategory =
+        tableCategoryFilter === allProductsLabel || product.category === tableCategoryFilter
+      const matchesStock =
+        tableStockFilter === 'all' ||
+        (tableStockFilter === 'available' && product.stock > 5) ||
+        (tableStockFilter === 'low' && product.stock > 0 && product.stock <= 5) ||
+        (tableStockFilter === 'out' && product.stock === 0)
+
+      return matchesSearch && matchesCategory && matchesStock
+    })
+  }, [sortedProducts, tableCategoryFilter, tableSearchTerm, tableStockFilter])
+
+  const tableTotalPages = Math.max(Math.ceil(filteredTableProducts.length / adminTablePageSize), 1)
+  const tableFirstProductIndex = (tablePage - 1) * adminTablePageSize
+  const paginatedTableProducts = filteredTableProducts.slice(
+    tableFirstProductIndex,
+    tableFirstProductIndex + adminTablePageSize,
+  )
   // totalStock alimenta la metrica de unidades disponibles del dashboard admin.
   const totalStock = useMemo(
     () => products.reduce((total, product) => total + product.stock, 0),
@@ -181,6 +243,9 @@ function AdminProducts() {
   // categoryCount muestra cuantas categorias hay configuradas.
   const categoryCount = productCategories.length
 
+  useEffect(() => {
+    setTablePage(1)
+  }, [tableCategoryFilter, tableSearchTerm, tableStockFilter, products.length])
   // Limpia object URLs de previews para no acumular memoria del navegador.
   useEffect(
     () => () => {
@@ -228,7 +293,7 @@ function AdminProducts() {
     if (name === 'price') {
       setFormData((currentData) => ({
         ...currentData,
-        price: formatCurrencyInput(value),
+        price: formatCurrencyInput(value, { preserveUserCents: true }),
       }))
       return
     }
@@ -328,23 +393,30 @@ function AdminProducts() {
       return
     }
 
-    try {
-      setSaving(true)
-      // createdCategory trae el id generado por Firestore.
-      const createdCategory = await createProductCategory(normalizedName)
-      setProductCategories((currentCategories) =>
-        [...currentCategories, createdCategory].sort((a, b) =>
-          a.name.localeCompare(b.name),
-        ),
-      )
-      setFormData((currentData) => ({ ...currentData, category: createdCategory.name }))
-      setNewCategoryName('')
-      setSuccess('Categoria agregada correctamente.')
-    } catch {
-      setError('No se pudo agregar la categoria.')
-    } finally {
-      setSaving(false)
-    }
+    setConfirmAction({
+      title: 'Agregar categoria',
+      message: `Vas a sumar "${normalizedName}" como nueva categoria del catalogo.`,
+      confirmLabel: 'Agregar categoria',
+      tone: 'success',
+      onConfirm: async () => {
+        try {
+          setSaving(true)
+          const createdCategory = await createProductCategory(normalizedName)
+          setProductCategories((currentCategories) =>
+            [...currentCategories, createdCategory].sort((a, b) =>
+              a.name.localeCompare(b.name),
+            ),
+          )
+          setFormData((currentData) => ({ ...currentData, category: createdCategory.name }))
+          setNewCategoryName('')
+          setSuccess('Categoria agregada correctamente.')
+        } catch {
+          setError('No se pudo agregar la categoria.')
+        } finally {
+          setSaving(false)
+        }
+      },
+    })
   }
 
   // handleDeleteCategory elimina categorias vacias; bloquea las que ya tienen productos.
@@ -359,29 +431,36 @@ function AdminProducts() {
       return
     }
 
-    try {
-      setSaving(true)
-      await deleteProductCategory(category.id)
-      setProductCategories((currentCategories) => {
-        // nextCategories es la lista local luego de sacar la categoria eliminada.
-        const nextCategories = currentCategories.filter(
-          (currentCategory) => currentCategory.id !== category.id,
-        )
-        setFormData((currentData) => ({
-          ...currentData,
-          category:
-            currentData.category === category.name
-              ? nextCategories[0]?.name || ''
-              : currentData.category,
-        }))
-        return nextCategories
-      })
-      setSuccess('Categoria eliminada correctamente.')
-    } catch {
-      setError('No se pudo eliminar la categoria.')
-    } finally {
-      setSaving(false)
-    }
+    setConfirmAction({
+      title: 'Eliminar categoria',
+      message: `Vas a eliminar "${category.name}" del catalogo. Esta accion no se puede deshacer.`,
+      confirmLabel: 'Eliminar categoria',
+      tone: 'danger',
+      onConfirm: async () => {
+        try {
+          setSaving(true)
+          await deleteProductCategory(category.id)
+          setProductCategories((currentCategories) => {
+            const nextCategories = currentCategories.filter(
+              (currentCategory) => currentCategory.id !== category.id,
+            )
+            setFormData((currentData) => ({
+              ...currentData,
+              category:
+                currentData.category === category.name
+                  ? nextCategories[0]?.name || ''
+                  : currentData.category,
+            }))
+            return nextCategories
+          })
+          setSuccess('Categoria eliminada correctamente.')
+        } catch {
+          setError('No se pudo eliminar la categoria.')
+        } finally {
+          setSaving(false)
+        }
+      },
+    })
   }
 
   // Validaciones minimas pedidas para evitar productos incompletos.
@@ -419,45 +498,51 @@ function AdminProducts() {
       return
     }
 
-    try {
-      setSaving(true)
-      // imageUrl elige la imagen comprimida nueva o conserva la URL/data previa.
-      const imageUrl = imageFile
-        ? preparedImage
-        : formData.image.trim()
+    setConfirmAction({
+      title: isEditing ? 'Guardar cambios' : 'Agregar producto',
+      message: isEditing
+        ? `Vas a actualizar "${formData.name.trim()}" en el catalogo.`
+        : `Vas a publicar "${formData.name.trim()}" en el catalogo.`,
+      confirmLabel: isEditing ? 'Guardar cambios' : 'Agregar producto',
+      tone: 'success',
+      onConfirm: async () => {
+        try {
+          setSaving(true)
+          const imageUrl = imageFile
+            ? preparedImage
+            : formData.image.trim()
 
-      // payload es el producto listo para Firestore, con textos limpios y numeros reales.
-      const payload = {
-        ...formData,
-        name: formData.name.trim(),
-        image: imageUrl,
-        description: formData.description.trim(),
-        details: formData.details.trim(),
-        price: parseCurrencyValue(formData.price),
-        stock: Number(formData.stock),
-      }
+          const payload = {
+            ...formData,
+            name: formData.name.trim(),
+            image: imageUrl,
+            description: formData.description.trim(),
+            details: formData.details.trim(),
+            price: parseCurrencyValue(formData.price),
+            stock: Number(formData.stock),
+          }
 
-      if (isEditing) {
-        // updatedProduct actualiza la lista local sin recargar todo el catalogo.
-        const updatedProduct = await updateProduct(editingProductId, payload)
-        setProducts((currentProducts) =>
-          currentProducts.map((product) =>
-            product.id === editingProductId ? updatedProduct : product,
-          ),
-        )
-        setSuccess('Producto actualizado correctamente.')
-      } else {
-        // createdProduct incluye el id generado por Firestore para agregarlo a la tabla.
-        const createdProduct = await createProduct(payload)
-        setProducts((currentProducts) => [...currentProducts, createdProduct])
-        setSuccess('Producto agregado correctamente.')
-      }
-      resetForm()
-    } catch (saveError) {
-      setError(getProductSaveErrorMessage(saveError))
-    } finally {
-      setSaving(false)
-    }
+          if (isEditing) {
+            const updatedProduct = await updateProduct(editingProductId, payload)
+            setProducts((currentProducts) =>
+              currentProducts.map((product) =>
+                product.id === editingProductId ? updatedProduct : product,
+              ),
+            )
+            setSuccess('Producto actualizado correctamente.')
+          } else {
+            const createdProduct = await createProduct(payload)
+            setProducts((currentProducts) => [...currentProducts, createdProduct])
+            setSuccess('Ya aparece en la vitrina del catalogo.')
+          }
+          resetForm()
+        } catch (saveError) {
+          setError(getProductSaveErrorMessage(saveError))
+        } finally {
+          setSaving(false)
+        }
+      },
+    })
   }
 
   // handleEdit carga un producto existente en el formulario para modificarlo.
@@ -480,24 +565,6 @@ function AdminProducts() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // handleDelete confirma la baja del producto elegido en el modal.
-  const handleDelete = async () => {
-    if (!productToDelete) return
-
-    try {
-      setSaving(true)
-      await deleteProduct(productToDelete.id)
-      setProducts((currentProducts) =>
-        currentProducts.filter((product) => product.id !== productToDelete.id),
-      )
-      setSuccess('Producto eliminado correctamente.')
-      setProductToDelete(null)
-    } catch {
-      setError('No se pudo eliminar el producto.')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   // handleSeed carga el JSON inicial cuando la base esta vacia o se quiere reiniciar catalogo.
   const handleSeed = async () => {
@@ -530,7 +597,7 @@ function AdminProducts() {
           <span className="eyebrow">Panel privado</span>
           <h1>Gestion de productos</h1>
           <p>
-            Administra el catalogo conectado a Firestore, controla stock y mantené
+            Administra el catalogo publicado, controla stock y mantene
             la tienda lista para vender.
           </p>
           <div className="admin-session">
@@ -571,14 +638,36 @@ function AdminProducts() {
       </div>
 
       {!isFirebaseConfigured && (
-        <Alert variant="warning">
-          Firebase no esta configurado. Este panel requiere Authentication y
-          Firestore reales.
+        <Alert className="admin-alert admin-alert-warning" variant="warning">
+          <FiInfo aria-hidden="true" />
+          <div>
+            <strong>Panel temporalmente limitado</strong>
+            <span>
+              El panel necesita una conexion activa para guardar y consultar datos.
+              Revisa la configuracion de la tienda.
+            </span>
+          </div>
         </Alert>
       )}
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">{success}</Alert>}
+      {error && (
+        <Alert className="admin-alert admin-alert-danger" variant="danger">
+          <FiAlertTriangle aria-hidden="true" />
+          <div>
+            <strong>Quest bloqueada</strong>
+            <span>{error}</span>
+          </div>
+        </Alert>
+      )}
+      {success && (
+        <Alert className="admin-alert admin-alert-success" variant="success">
+          <FiCheckCircle aria-hidden="true" />
+          <div>
+            <strong>Item agregado al inventario</strong>
+            <span>{success}</span>
+          </div>
+        </Alert>
+      )}
 
       <section className="category-manager" aria-labelledby="category-manager-title">
         <div className="category-manager-heading">
@@ -642,21 +731,6 @@ function AdminProducts() {
         <div className="admin-block-heading">
           <span className="eyebrow">Inventario</span>
           <h2>Alta y mantenimiento</h2>
-        </div>
-        <div className="toolbar-actions">
-          <button className="button button-secondary" type="button" onClick={loadProducts}>
-            <FiRefreshCw aria-hidden="true" />
-            Actualizar
-          </button>
-          <button
-            className="button button-secondary"
-            disabled={saving}
-            type="button"
-            onClick={handleSeed}
-          >
-            <FiPlus aria-hidden="true" />
-            Cargar JSON inicial
-          </button>
         </div>
       </AdminToolbar>
 
@@ -803,7 +877,7 @@ function AdminProducts() {
         </Form.Group>
 
         <div className="form-actions">
-          <button className="button" disabled={saving || imageProcessing} type="submit">
+          <button className="button admin-submit-button" disabled={saving || imageProcessing} type="submit">
             {saving ? <Spinner animation="border" size="sm" /> : <FiPlus aria-hidden="true" />}
             {isEditing ? 'Guardar cambios' : 'Agregar producto'}
           </button>
@@ -817,86 +891,203 @@ function AdminProducts() {
 
       <div className="admin-list-heading">
         <div>
-          <span className="eyebrow">Firestore</span>
+          <span className="eyebrow">Inventario</span>
           <h2>Productos publicados</h2>
         </div>
-        <p>{sortedProducts.length} productos ordenados alfabeticamente</p>
+        <p>{filteredTableProducts.length} de {sortedProducts.length} productos visibles</p>
       </div>
 
-      <div className="admin-table-wrap">
-        {loading ? (
-          <p className="status-message">Cargando productos...</p>
-        ) : (
-          <Table responsive bordered hover variant="dark">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th>Categoria</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedProducts.map((product) => (
-                <tr key={product.id}>
-                  <td>{product.name}</td>
-                  <td>{product.category}</td>
-                  <td>${product.price.toLocaleString('es-AR')}</td>
-                  <td>{product.stock}</td>
-                  <td>
-                    <div className="table-actions">
-                      <button
-                        className="icon-button"
-                        title="Editar producto"
-                        type="button"
-                        onClick={() => handleEdit(product)}
-                      >
-                        <FiEdit3 aria-hidden="true" />
-                      </button>
-                      <button
-                        className="icon-button danger"
-                        title="Eliminar producto"
-                        type="button"
-                        onClick={() => setProductToDelete(product)}
-                      >
-                        <FiTrash2 aria-hidden="true" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+      <section className="admin-table-panel" aria-label="Listado de productos publicados">
+        <div className="admin-table-filters">
+          <label className="admin-table-search" htmlFor="admin-product-search">
+            <span>Buscar</span>
+            <div>
+              <FiSearch aria-hidden="true" />
+              <input
+                id="admin-product-search"
+                placeholder="Nombre, categoria o descripcion"
+                value={tableSearchTerm}
+                onChange={(event) => setTableSearchTerm(event.target.value)}
+              />
+            </div>
+          </label>
+
+          <label htmlFor="admin-category-filter">
+            <span>Categoria</span>
+            <select
+              id="admin-category-filter"
+              value={tableCategoryFilter}
+              onChange={(event) => setTableCategoryFilter(event.target.value)}
+            >
+              <option value={allProductsLabel}>{allProductsLabel}</option>
+              {productCategories.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
               ))}
-            </tbody>
-          </Table>
-        )}
-      </div>
+            </select>
+          </label>
+
+          <label htmlFor="admin-stock-filter">
+            <span>Stock</span>
+            <select
+              id="admin-stock-filter"
+              value={tableStockFilter}
+              onChange={(event) => setTableStockFilter(event.target.value)}
+            >
+              <option value="all">Todos</option>
+              <option value="available">Disponible</option>
+              <option value="low">Bajo stock</option>
+              <option value="out">Sin stock</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="admin-table-wrap">
+          {loading ? (
+            <p className="status-message">Cargando productos...</p>
+          ) : filteredTableProducts.length === 0 ? (
+            <p className="status-message admin-empty-table">No hay productos para esos filtros.</p>
+          ) : (
+            <Table responsive hover variant="dark">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoria</th>
+                  <th>Precio</th>
+                  <th>Stock</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedTableProducts.map((product) => (
+                  <tr key={product.id}>
+                    <td>
+                      <div className="admin-product-cell">
+                        <img src={product.image} alt="" aria-hidden="true" />
+                        <div>
+                          <strong>{product.name}</strong>
+                          <span>{product.description}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="admin-category-tag">{product.category}</span>
+                    </td>
+                    <td className="admin-price-cell">${product.price.toLocaleString('es-AR')}</td>
+                    <td>
+                      <span className={`admin-stock-badge${product.stock <= 5 ? ' warning' : ''}${product.stock === 0 ? ' empty' : ''}`}>
+                        {product.stock} unidades
+                      </span>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <button
+                          className="icon-button"
+                          title="Editar producto"
+                          type="button"
+                          onClick={() => handleEdit(product)}
+                        >
+                          <FiEdit3 aria-hidden="true" />
+                        </button>
+                        <button
+                          className="icon-button danger"
+                          title="Eliminar producto"
+                          type="button"
+                          onClick={() =>
+                            setConfirmAction({
+                              title: 'Eliminar producto',
+                              message: `Vas a eliminar "${product.name}" del catalogo. Esta accion no se puede deshacer.`,
+                              confirmLabel: 'Eliminar producto',
+                              tone: 'danger',
+                              onConfirm: async () => {
+                                try {
+                                  setSaving(true)
+                                  await deleteProduct(product.id)
+                                  setProducts((currentProducts) =>
+                                    currentProducts.filter((currentProduct) => currentProduct.id !== product.id),
+                                  )
+                                  setSuccess('Producto eliminado correctamente.')
+                                } catch {
+                                  setError('No se pudo eliminar el producto.')
+                                } finally {
+                                  setSaving(false)
+                                }
+                              },
+                            })
+                          }
+                        >
+                          <FiTrash2 aria-hidden="true" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </div>
+
+        <div className="admin-table-pagination">
+          <span>
+            Pagina {tablePage} de {tableTotalPages} - {adminTablePageSize} por pagina
+          </span>
+          <div>
+            <button
+              className="button button-secondary"
+              disabled={tablePage === 1 || loading}
+              type="button"
+              onClick={() => setTablePage((page) => Math.max(page - 1, 1))}
+            >
+              Anterior
+            </button>
+            <button
+              className="button button-secondary"
+              disabled={tablePage === tableTotalPages || loading}
+              type="button"
+              onClick={() => setTablePage((page) => Math.min(page + 1, tableTotalPages))}
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </section>
 
       <Modal
         centered
-        show={Boolean(productToDelete)}
-        onHide={() => setProductToDelete(null)}
+        className="game-confirm-modal"
+        show={Boolean(confirmAction)}
+        onHide={closeConfirmAction}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Eliminar producto</Modal.Title>
+        <Modal.Header closeButton={!saving}>
+          <div className="confirm-brand">
+            <img src="/images/universo-geek-logo.png" alt="Universo Geek" />
+            <div>
+              <span>Confirmacion requerida</span>
+              <Modal.Title>{confirmAction?.title}</Modal.Title>
+            </div>
+          </div>
         </Modal.Header>
         <Modal.Body>
-          Confirmas que queres eliminar "{productToDelete?.name}"?
+          <p>{confirmAction?.message}</p>
         </Modal.Body>
         <Modal.Footer>
           <button
             className="button button-secondary"
+            disabled={saving}
             type="button"
-            onClick={() => setProductToDelete(null)}
+            onClick={closeConfirmAction}
           >
             Cancelar
           </button>
           <button
-            className="button button-danger"
+            className={`button ${confirmAction?.tone === 'danger' ? 'button-danger' : 'confirm-primary'}`}
             disabled={saving}
             type="button"
-            onClick={handleDelete}
+            onClick={handleConfirmAction}
           >
-            Eliminar
+            {saving ? <Spinner animation="border" size="sm" /> : <FiCheckCircle aria-hidden="true" />}
+            {confirmAction?.confirmLabel || 'Confirmar'}
           </button>
         </Modal.Footer>
       </Modal>
@@ -905,3 +1096,5 @@ function AdminProducts() {
 }
 
 export default AdminProducts
+
+

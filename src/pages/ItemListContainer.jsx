@@ -68,7 +68,7 @@ function ItemListContainer() {
   useEffect(() => {
     getProducts()
       .then((data) => setProducts(data))
-      .catch((fetchError) => setError(fetchError.message))
+      .catch(() => setError('No pudimos cargar el catalogo. Intenta nuevamente en unos minutos.'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -146,6 +146,19 @@ function ItemListContainer() {
           <p>Explora figuras, accesorios gamer, productos de rol y piezas para completar tu setup.</p>
         </div>
       </div>
+      <section className="catalog-search-panel" aria-label="Busqueda de productos">
+        <label className="catalog-search-control" htmlFor="product-search">
+          <span>Buscar productos</span>
+          <strong>Mejora tu inventario</strong>
+          <input
+            id="product-search"
+            placeholder="Teclado, figura, setup..."
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+          />
+        </label>
+      </section>
 
       <div className="catalog-layout">
         <aside className="catalog-sidebar" aria-label="Filtros del catalogo">
@@ -155,16 +168,6 @@ function ItemListContainer() {
             </div>
 
             <div className="catalog-tools">
-              <label className="search-control" htmlFor="product-search">
-                <span>Buscar productos</span>
-                <input
-                  id="product-search"
-                  placeholder="Teclado, figura, setup..."
-                  type="search"
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                />
-              </label>
 
               <label className="sort-control" htmlFor="product-sort">
                 <span>Ordenar por</span>

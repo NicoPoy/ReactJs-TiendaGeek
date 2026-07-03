@@ -34,7 +34,7 @@ function ItemDetailContainer() {
 
         setProduct(selectedProduct)
       })
-      .catch((fetchError) => setError(fetchError.message))
+      .catch(() => setError('No pudimos cargar el producto. Intenta nuevamente en unos minutos.'))
       .finally(() => setLoading(false))
   }, [id])
 

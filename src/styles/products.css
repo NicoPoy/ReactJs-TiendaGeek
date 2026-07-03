@@ -1,4 +1,4 @@
-﻿/* Card individual de producto. */
+/* Card individual de producto. */
 .product-card {
   display: flex;
   flex-direction: column;
@@ -6,6 +6,7 @@
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 8px;
   background: #f8fafc;
+  height: 100%;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
 }
 
@@ -43,7 +44,7 @@
 .product-card-content {
   display: flex;
   flex: 1;
-  min-height: 250px;
+  min-height: 270px;
   flex-direction: column;
   padding: 18px;
 }
@@ -67,6 +68,22 @@
 .product-card p,
 .cart-item p {
   color: #555f70;
+}
+
+.product-card h3 {
+  display: -webkit-box;
+  min-height: 3.6em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.product-card p {
+  display: -webkit-box;
+  min-height: 4.8em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
 }
 
 /* Texto secundario sobre fondos oscuros. */
