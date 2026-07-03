@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 // CartContext centraliza el carrito para que detalle, navbar y carrito
 // compartan la misma informacion sin pasar props manualmente.
@@ -8,7 +8,19 @@ const CartContext = createContext()
 // CartProvider envuelve la app y comparte el carrito con todos los componentes hijos.
 export function CartProvider({ children }) {
   // Cada item del carrito guarda los datos del producto y una cantidad.
-  const [cart, setCart] = useState([])
+  const [cart, setCart] = useState(() => {
+    try {
+      const storedCart = localStorage.getItem('tiendageek_cart')
+      return storedCart ? JSON.parse(storedCart) : []
+    } catch {
+      return []
+    }
+  })
+
+  // Sincroniza el carrito con localStorage cada vez que cambia.
+  useEffect(() => {
+    localStorage.setItem('tiendageek_cart', JSON.stringify(cart))
+  }, [cart])
 
   // Normaliza cantidades para evitar decimales, negativos o valores mayores al stock.
   const getSafeQuantity = (quantity, stock) => {

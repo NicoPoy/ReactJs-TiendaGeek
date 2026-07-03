@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Modal } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import { FiCheckCircle, FiPackage, FiShield, FiShoppingBag, FiTruck } from 'react-icons/fi'
+import { FiCheckCircle, FiPackage, FiShield, FiShoppingBag, FiTrash2, FiTruck } from 'react-icons/fi'
 import Seo from '../components/seo/Seo.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
@@ -48,18 +48,24 @@ function Cart() {
           description="Confirmacion de compra simulada en Universo Geek."
         />
         <div className="purchase-confirmation">
-          <img
-            className="purchase-brand-mark"
-            src="/images/universo-geek-logo.png"
-            alt=""
-            aria-hidden="true"
-          />
-          <FiCheckCircle aria-hidden="true" />
-          <span className="eyebrow">Pedido confirmado</span>
-          <h1>Gracias por su compra</h1>
-          <p>
-            Recibimos tu pedido simulado y dejamos el detalle listo para revisar.
-          </p>
+          <div className="purchase-confirmation-header">
+            <div className="purchase-header-text">
+              <div className="purchase-status">
+                <FiCheckCircle aria-hidden="true" />
+                <span className="eyebrow">Pedido confirmado</span>
+              </div>
+              <h1>Gracias por su compra</h1>
+              <p>
+                Recibimos tu pedido simulado y dejamos el detalle listo para revisar.
+              </p>
+            </div>
+            <div className="purchase-header-logo">
+              <img
+                src="/images/universo-geek-logo.png"
+                alt="Universo Geek Logo"
+              />
+            </div>
+          </div>
 
           <dl className="purchase-info">
             <div>
@@ -137,26 +143,18 @@ function Cart() {
     <section className="page-section cart-page">
       <Seo title="Carrito" description="Productos agregados al carrito de compras." />
       <div className="cart-hero">
-        <div className="section-heading">
-          <span className="eyebrow">Carrito</span>
-          <h1>Inventario de compra</h1>
-          <p>
-            Revisa tus objetos geek, ajusta cantidades y confirma una compra simulada
-            para cerrar el pedido.
-          </p>
-        </div>
-        {/* cart-hero-stats resume estado del carrito antes del panel de checkout. */}
-        <div className="cart-hero-stats" aria-label="Resumen rapido del carrito">
-          <article>
-            <FiShoppingBag aria-hidden="true" />
-            <span>Items</span>
-            <strong>{totalItems}</strong>
-          </article>
-          <article>
-            <FiShield aria-hidden="true" />
-            <span>Checkout</span>
-            <strong>Demo</strong>
-          </article>
+        <div className="cart-hero-content">
+          <div className="section-heading">
+            <span className="eyebrow">Carrito</span>
+            <h1>Carrito de compras</h1>
+            <p>
+              Revisa tus artículos de colección, ajusta cantidades y confirma una compra simulada
+              para cerrar el pedido.
+            </p>
+          </div>
+          <div className="cart-hero-logo">
+            <img src="/images/universo-geek-logo.png" alt="Universo Geek Logo" />
+          </div>
         </div>
       </div>
 
@@ -165,58 +163,67 @@ function Cart() {
         <div className="cart-list" aria-label="Productos agregados">
           {cart.map((item) => (
             <article className="cart-item" key={item.id}>
+              {/* Columna 1: Imagen del producto */}
               <div className="cart-item-media">
                 <img src={item.image} alt={item.name} />
-                <img
-                  className="cart-item-brand"
-                  src="/images/universo-geek-logo.png"
-                  alt=""
-                  aria-hidden="true"
-                />
               </div>
-              <div className="cart-item-info">
+              
+              {/* Columna 2: Detalles del producto y controles */}
+              <div className="cart-item-details">
                 <span className="cart-item-category">{item.category}</span>
                 <h2>{item.name}</h2>
-                {/* Controles para modificar cantidad sin superar el stock disponible. */}
-                <div className="quantity-control" aria-label={`Cantidad de ${item.name}`}>
-                  <button
-                    type="button"
-                    onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                    disabled={item.quantity <= 1}
-                  >
-                    -
-                  </button>
-                  <input
-                    min="1"
-                    max={item.stock}
-                    type="number"
-                    value={item.quantity}
-                    onChange={(event) =>
-                      updateCartQuantity(item.id, event.target.value)
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                    disabled={item.quantity >= item.stock}
-                  >
-                    +
-                  </button>
+                <div className="cart-item-meta">
+                  <div className="cart-item-price-unit">
+                    <span>Precio unitario:</span>
+                    <strong>${item.price.toLocaleString('es-AR')}</strong>
+                  </div>
+                  <div className="quantity-control-container">
+                    <span>Cantidad:</span>
+                    <div className="quantity-control" aria-label={`Cantidad de ${item.name}`}>
+                      <button
+                        type="button"
+                        onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                      >
+                        -
+                      </button>
+                      <input
+                        min="1"
+                        max={item.stock}
+                        type="number"
+                        value={item.quantity}
+                        onChange={(event) =>
+                          updateCartQuantity(item.id, parseInt(event.target.value) || 1)
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
+                        disabled={item.quantity >= item.stock}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <p>Stock disponible: {item.stock}</p>
+                <span className="stock-badge">Stock disponible: {item.stock}</span>
               </div>
-              <div className="cart-item-actions">
-                <span>Subtotal</span>
-                <strong>
-                  ${(item.price * item.quantity).toLocaleString('es-AR')}
-                </strong>
-                {/* Quita este producto completo del carrito. */}
+              
+              {/* Columna 3: Subtotal y Boton Quitar */}
+              <div className="cart-item-pricing-action">
+                <div className="subtotal-box">
+                  <span>Subtotal</span>
+                  <strong>${(item.price * item.quantity).toLocaleString('es-AR')}</strong>
+                </div>
                 <button
-                  className="button button-secondary"
+                  className="cart-item-remove-btn"
                   type="button"
                   onClick={() => removeFromCart(item.id)}
+                  title="Eliminar del carrito"
+                  aria-label={`Quitar ${item.name} del carrito`}
                 >
-                  Quitar
+                  <FiTrash2 aria-hidden="true" />
+                  <span>Quitar</span>
                 </button>
               </div>
             </article>
