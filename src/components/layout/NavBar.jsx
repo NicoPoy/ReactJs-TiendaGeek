@@ -54,7 +54,7 @@ function NavBar() {
             {isAdmin && (
               <NavLink to="/admin" onClick={closeMenu}>
                 <FiLock aria-hidden="true" />
-                Panel
+                Dashboard
               </NavLink>
             )}
             <NavLink to="/carrito" onClick={closeMenu}>

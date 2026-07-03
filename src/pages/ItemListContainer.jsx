@@ -76,6 +76,8 @@ function ItemListContainer() {
     setCurrentPage(1)
   }, [selectedCategory, searchTerm, sortOrder, productsPerPage])
 
+
+
   // categories se deriva de productos para no mantener otro estado duplicado.
   const categories = useMemo(() => {
     // productCategories extrae categorias unicas ignorando diferencias de mayusculas.
@@ -118,14 +120,19 @@ function ItemListContainer() {
   // selectedSortLabel traduce el valor interno del select a texto del resumen.
   const selectedSortLabel =
     sortOptions.find((sortOption) => sortOption.value === sortOrder)?.label || 'Mas nuevos'
+  
+  const limit = typeof productsPerPage === 'number' && !isNaN(productsPerPage) && productsPerPage > 0 
+    ? Math.min(productsPerPage, filteredProducts.length || 1) 
+    : defaultProductsPerPage
+
   // totalPages evita que el paginador quede en 0 paginas cuando no hay resultados.
-  const totalPages = Math.max(Math.ceil(filteredProducts.length / productsPerPage), 1)
+  const totalPages = Math.max(Math.ceil(filteredProducts.length / limit), 1)
   // firstProductIndex calcula desde que producto empieza la pagina actual.
-  const firstProductIndex = (currentPage - 1) * productsPerPage
+  const firstProductIndex = (currentPage - 1) * limit
   // paginatedProducts es el subconjunto final que se renderiza.
   const paginatedProducts = filteredProducts.slice(
     firstProductIndex,
-    firstProductIndex + productsPerPage,
+    firstProductIndex + limit,
   )
 
   return (
@@ -134,6 +141,7 @@ function ItemListContainer() {
         title="Productos"
         description="Catalogo de accesorios gamer, figuras coleccionables, productos de rol y objetos para setup."
       />
+
       {isAuthenticated && (
         <div className="catalog-user-greeting" title={user?.email}>
           Hola, {user?.email}
@@ -186,17 +194,25 @@ function ItemListContainer() {
 
               <label className="sort-control" htmlFor="products-per-page">
                 <span>Productos por pagina</span>
-                <select
+                <input
                   id="products-per-page"
+                  type="number"
+                  min="1"
+                  max={filteredProducts.length || 1}
                   value={productsPerPage}
-                  onChange={(event) => setProductsPerPage(Number(event.target.value))}
-                >
-                  {productsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(event) => {
+                    const val = event.target.value
+                    if (val === '') {
+                      setProductsPerPage('')
+                      return
+                    }
+                    let parsed = parseInt(val, 10)
+                    const maxLimit = filteredProducts.length || 1
+                    if (parsed < 1) parsed = 1
+                    if (parsed > maxLimit) parsed = maxLimit
+                    setProductsPerPage(parsed)
+                  }}
+                />
               </label>
             </div>
 

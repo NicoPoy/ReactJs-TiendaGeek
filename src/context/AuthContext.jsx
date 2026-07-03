@@ -13,6 +13,10 @@ import { createClientProfile, getUserProfile, userRoles } from '../services/user
 // Todas las sesiones se validan exclusivamente contra Firebase Authentication.
 const AuthContext = createContext()
 
+// Constantes para el manejo de inactividad de sesión (1 hora de inactividad máxima)
+const INACTIVITY_TIMEOUT = 60 * 60 * 1000 // 1 hora en ms
+const THROTTLE_TIME = 5000 // 5 segundos para throttle de eventos de usuario
+
 // AuthProvider expone usuario, estado de carga y acciones auth a toda la app.
 export function AuthProvider({ children }) {
   // user representa el usuario actual, o null si no hay sesion.
@@ -33,6 +37,19 @@ export function AuthProvider({ children }) {
       if (!currentUser) {
         setUser(null)
         setLoading(false)
+        localStorage.removeItem('lastActivity')
+        return
+      }
+
+      // Verificar si la sesión expiró por inactividad antes de restaurar
+      const lastActivity = localStorage.getItem('lastActivity')
+      const now = Date.now()
+      if (lastActivity && now - parseInt(lastActivity, 10) >= INACTIVITY_TIMEOUT) {
+        // Expiró, cerramos sesión inmediatamente
+        await signOut(auth)
+        setUser(null)
+        localStorage.removeItem('lastActivity')
+        setLoading(false)
         return
       }
 
@@ -40,6 +57,10 @@ export function AuthProvider({ children }) {
         // profile agrega el rol de Firestore al usuario autenticado de Firebase.
         const profile = await getUserProfile(currentUser)
         setUser(profile)
+        // Guardamos la marca de tiempo si no existe
+        if (!localStorage.getItem('lastActivity')) {
+          localStorage.setItem('lastActivity', now.toString())
+        }
       } catch {
         // Si falla el perfil, se evita dejar una sesion a medias con permisos ambiguos.
         setUser(null)
@@ -61,6 +82,7 @@ export function AuthProvider({ children }) {
     const credential = await signInWithEmailAndPassword(auth, email, password)
     // profile decide si la cuenta entra como admin o cliente.
     const profile = await getUserProfile(credential.user)
+    localStorage.setItem('lastActivity', Date.now().toString())
     setUser(profile)
     return profile
   }
@@ -77,6 +99,7 @@ export function AuthProvider({ children }) {
     try {
       // Todo registro publico se identifica como cliente; no hay alta de admins desde UI.
       const profile = await createClientProfile(credential.user)
+      localStorage.setItem('lastActivity', Date.now().toString())
       setUser(profile)
       return profile
     } catch (error) {
@@ -88,6 +111,7 @@ export function AuthProvider({ children }) {
 
   // logout cierra la sesion actual en Firebase Authentication.
   const logout = async () => {
+    localStorage.removeItem('lastActivity')
     if (!isFirebaseConfigured || !auth) {
       setUser(null)
       return
@@ -95,6 +119,54 @@ export function AuthProvider({ children }) {
 
     await signOut(auth)
   }
+
+  // Monitoreo de actividad del usuario mientras está logueado
+  useEffect(() => {
+    if (!user) return
+
+    let lastSavedTime = Date.now()
+
+    const updateActivity = () => {
+      const now = Date.now()
+      if (now - lastSavedTime > THROTTLE_TIME) {
+        localStorage.setItem('lastActivity', now.toString())
+        lastSavedTime = now
+      }
+    }
+
+    const checkInactivity = () => {
+      const lastActivity = localStorage.getItem('lastActivity')
+      if (lastActivity) {
+        const elapsed = Date.now() - parseInt(lastActivity, 10)
+        if (elapsed >= INACTIVITY_TIMEOUT) {
+          logout()
+        }
+      }
+    }
+
+    // Establecer la marca inicial si no existe
+    if (!localStorage.getItem('lastActivity')) {
+      localStorage.setItem('lastActivity', Date.now().toString())
+    }
+
+    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart']
+    const handleActivity = () => {
+      updateActivity()
+    }
+
+    events.forEach((event) => {
+      window.addEventListener(event, handleActivity)
+    })
+
+    const interval = setInterval(checkInactivity, 10000) // Verificar cada 10 segundos
+
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, handleActivity)
+      })
+      clearInterval(interval)
+    }
+  }, [user])
 
   // value es el objeto publico que consumen los componentes con useAuth.
   const value = useMemo(

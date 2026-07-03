@@ -10,9 +10,12 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  border-bottom: 1px solid rgba(94, 234, 212, 0.24);
   background: rgba(16, 20, 31, 0.9);
   backdrop-filter: blur(14px);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.25),
+    0 0 25px rgba(94, 234, 212, 0.04);
 }
 
 /* Barra principal con marca, links de navegacion y carrito. */
@@ -34,6 +37,18 @@
   color: #f8fafc;
   font-size: 1.35rem;
   font-weight: 800;
+  text-decoration: none;
+}
+
+.brand span {
+  color: #f8fafc;
+  font-weight: 800;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.brand:hover span {
+  color: #5eead4;
+  text-shadow: 0 0 10px rgba(94, 234, 212, 0.35);
 }
 
 /* Logo compacto de Universo Geek en el header. */
@@ -44,6 +59,13 @@
   border-radius: 8px;
   object-fit: cover;
   object-position: 28% 50%;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.brand:hover img {
+  border-color: #5eead4;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(94, 234, 212, 0.25);
 }
 
 /* Boton hamburguesa: se oculta en desktop y se activa desde responsive.css. */
@@ -77,32 +99,42 @@
 }
 
 /* Estados de navegacion normal, hover y ruta activa. */
-.nav-links a,
-.nav-action {
+.nav-links a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid transparent;
   border-radius: 6px;
   color: #cbd5e1;
   font-weight: 700;
   gap: 7px;
-  padding: 10px 12px;
+  padding: 8px 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-.nav-links a.active,
-.nav-links a:hover,
-.nav-action:hover {
-  background: rgba(94, 234, 212, 0.16);
+.nav-links a:hover {
+  background: rgba(94, 234, 212, 0.08);
+  border-color: rgba(94, 234, 212, 0.25);
   color: #f8fafc;
+}
+
+.nav-links a.active {
+  background: rgba(94, 234, 212, 0.12);
+  border-color: rgba(94, 234, 212, 0.42);
+  color: #5eead4;
+  box-shadow: 
+    0 0 15px rgba(94, 234, 212, 0.1),
+    inset 0 0 8px rgba(94, 234, 212, 0.05);
 }
 
 /* Widget del carrito mostrado dentro de la navbar. */
 .cart-widget {
   display: inline-flex;
-  min-width: 118px;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
+  transition: all 0.3s ease;
 }
 
 /* Icono SVG del carrito. */
@@ -120,23 +152,42 @@
   border-radius: 999px;
   background: #5eead4;
   color: #08111f;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(94, 234, 212, 0.4);
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nav-links a:hover .cart-widget strong {
+  transform: scale(1.1);
+  background-color: #f8fafc;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
 }
 
 /* Contenedor que ocupa el espacio disponible entre header y footer. */
 .main-content {
   flex: 1;
 }
+
 .nav-action {
-  border: 1px solid rgba(248, 113, 113, 0.36);
-  background: rgba(127, 29, 29, 0.22);
-  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
   cursor: pointer;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  gap: 7px;
+  padding: 8px 14px;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .nav-action:hover {
-  border-color: rgba(248, 113, 113, 0.62);
-  color: #fff;
+  border-color: rgba(239, 68, 68, 0.65);
+  background: rgba(239, 68, 68, 0.24);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
 }
-
-

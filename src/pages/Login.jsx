@@ -72,13 +72,12 @@ function Login() {
 
       <div className="login-shell">
         <div className="login-hero-content">
+          <div className="login-logo-header">
+            <img src="/images/universo-geek-logo.png" alt="Universo Geek Logo" className="login-logo-img" />
+          </div>
+
           <span className="eyebrow">Bienvenido</span>
           <h1 className="sr-only">Universo Geek</h1>
-          {/* <div className="login-brand-header">
-            <span>Zona cliente</span>
-            <strong>Universo Geek</strong>
-            <small>Ingresa para continuar tu compra</small>
-          </div> */}
 
           <div className="login-form-wrap">
             {!isFirebaseConfigured && (

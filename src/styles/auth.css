@@ -34,6 +34,54 @@
     linear-gradient(90deg, rgba(7, 10, 18, 0.86), rgba(7, 10, 18, 0.42)),
     url("/images/login-background.png") center / cover;
   color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Iconos de fondo decorativos */
+.login-decor-icon {
+  position: absolute;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 15px rgba(94, 234, 212, 0.25));
+  z-index: 0;
+  animation: floatAnim 10s ease-in-out infinite alternate;
+}
+
+.login-decor-1 {
+  top: 8%;
+  left: 6%;
+  width: 180px;
+  height: 180px;
+}
+
+.login-decor-2 {
+  top: 42%;
+  right: 5%;
+  width: 220px;
+  height: 220px;
+  animation-delay: -3s;
+}
+
+.login-decor-3 {
+  bottom: 8%;
+  left: 12%;
+  width: 160px;
+  height: 160px;
+  animation-delay: -6s;
+}
+
+@keyframes floatAnim {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-15px) rotate(5deg);
+  }
 }
 
 .login-shell {
@@ -42,6 +90,8 @@
   place-items: center;
   margin: 0 auto;
   padding: 34px 0 64px;
+  position: relative;
+  z-index: 1;
 }
 
 .login-hero-content {
@@ -50,6 +100,20 @@
   width: 100%;
   max-width: 680px;
   text-align: center;
+}
+
+/* Encabezado con Logo */
+.login-logo-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.login-logo-img {
+  width: 110px;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(94, 234, 212, 0.45));
 }
 .login-brand-header {
   display: grid;
@@ -111,17 +175,27 @@
 
 .login-card {
   max-width: none;
-  border: 1px solid rgba(94, 234, 212, 0.28);
-  border-radius: 8px;
+  border: 1px solid rgba(94, 234, 212, 0.32);
+  border-radius: 12px;
   background:
-    linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.82));
+    linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.88));
   color: #e5edf7;
-  padding: 24px;
+  padding: 32px 28px;
   text-align: left;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
   box-shadow:
-    0 22px 60px rgba(0, 0, 0, 0.36),
-    0 0 30px rgba(94, 234, 212, 0.1);
+    0 24px 70px rgba(0, 0, 0, 0.45),
+    0 0 35px rgba(94, 234, 212, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+  border-color: rgba(94, 234, 212, 0.48);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.5),
+    0 0 45px rgba(94, 234, 212, 0.22),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .login-card-heading {
   display: flex;
