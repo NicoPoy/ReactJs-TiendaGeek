@@ -227,3 +227,26 @@
   border-color: #64748b;
   background: #e2e8f0;
 }
+
+/* Carrusel del equipo en mobile */
+.team-carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  padding-bottom: 12px;
+}
+
+.team-carousel-header h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #5eead4;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.footer-team-container {
+  width: 100%;
+}

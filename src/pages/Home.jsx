@@ -9,6 +9,18 @@ function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)')
+    const listener = (e) => {
+      setIsMobile(e.matches)
+      setCurrentIndex(0) // Reiniciamos el índice al cambiar de tamaño
+    }
+    setIsMobile(media.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
 
   useEffect(() => {
     getProducts()
@@ -26,8 +38,9 @@ function Home() {
   }, [])
 
   const nextProducts = () => {
-    if (currentIndex + 3 < featuredProducts.length) {
-      setCurrentIndex((prev) => prev + 3)
+    const step = isMobile ? 1 : 3
+    if (currentIndex + step < featuredProducts.length) {
+      setCurrentIndex((prev) => prev + step)
     } else {
       // Volvemos al inicio si no hay más
       setCurrentIndex(0)
@@ -35,15 +48,20 @@ function Home() {
   }
 
   const prevProducts = () => {
-    if (currentIndex - 3 >= 0) {
-      setCurrentIndex((prev) => prev - 3)
+    const step = isMobile ? 1 : 3
+    if (currentIndex - step >= 0) {
+      setCurrentIndex((prev) => prev - step)
     } else {
-      // Ir a la última tanda de 3
-      const remainder = featuredProducts.length % 3
-      const lastIndex = remainder === 0 
-        ? featuredProducts.length - 3 
-        : featuredProducts.length - remainder
-      setCurrentIndex(lastIndex >= 0 ? lastIndex : 0)
+      if (isMobile) {
+        setCurrentIndex(featuredProducts.length - 1)
+      } else {
+        // Ir a la última tanda de 3
+        const remainder = featuredProducts.length % 3
+        const lastIndex = remainder === 0 
+          ? featuredProducts.length - 3 
+          : featuredProducts.length - remainder
+        setCurrentIndex(lastIndex >= 0 ? lastIndex : 0)
+      }
     }
   }
 
@@ -129,7 +147,7 @@ function Home() {
             <h2>Novedades Destacadas</h2>
             <p>Descubrí los últimos lanzamientos agregados a nuestra tienda.</p>
           </div>
-          {!loading && featuredProducts.length > 3 && (
+          {!loading && featuredProducts.length > (isMobile ? 1 : 3) && (
             <div className="carousel-controls">
               <button onClick={prevProducts} className="carousel-control-btn" aria-label="Productos anteriores">
                 <FiChevronLeft />
@@ -150,7 +168,7 @@ function Home() {
         ) : (
           <div className="featured-products-grid-wrapper">
             <div className="featured-products-grid">
-              {featuredProducts.slice(currentIndex, currentIndex + 3).map((product) => (
+              {featuredProducts.slice(currentIndex, currentIndex + (isMobile ? 1 : 3)).map((product) => (
                 <Item key={product.id} product={product} />
               ))}
             </div>

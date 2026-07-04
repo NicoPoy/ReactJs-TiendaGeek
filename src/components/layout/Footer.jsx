@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal } from 'react-bootstrap'
 import { FaGithub, FaLinkedin } from 'react-icons/fa'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 // Footer concentra datos institucionales y tarjetas del equipo.
 // Nicolas tiene un modal "Sobre mi"; las otras tarjetas muestran el boton deshabilitado.
@@ -36,6 +37,21 @@ const team = [
 function Footer() {
   // selectedPerson define si el modal "Sobre mi" esta abierto y que datos muestra.
   const [selectedPerson, setSelectedPerson] = useState(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [memberIndex, setMemberIndex] = useState(0)
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 768px)')
+    const listener = (e) => {
+      setIsMobile(e.matches)
+      if (!e.matches) setMemberIndex(0) // Reset index on resize to desktop
+    }
+    setIsMobile(media.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [])
+
+  const visibleTeam = isMobile ? [team[memberIndex]] : team
 
   return (
     <footer className="site-footer">
@@ -49,27 +65,53 @@ function Footer() {
       </section>
 
       {/* Tarjetas del equipo. Cada una usa avatar, nombre, rol y mail. */}
-      <section className="footer-team" aria-label="Equipo de la empresa">
-        {team.map((person) => (
-          <article className="person-card" key={person.email}>
-            <div className="person-heading">
-              <img className="person-avatar" src={person.image} alt={person.name} />
-              <div>
-                <h3>{person.name}</h3>
-                <button
-                  className="about-button"
-                  disabled={!person.about}
-                  type="button"
-                  onClick={() => setSelectedPerson(person)}
-                >
-                  Sobre mi
-                </button>
-              </div>
+      <section className="footer-team-container" aria-label="Equipo de la empresa">
+        {isMobile && (
+          <div className="team-carousel-header">
+            <h3>Nuestro equipo</h3>
+            <div className="carousel-controls">
+              <button
+                type="button"
+                className="carousel-control-btn"
+                onClick={() => setMemberIndex((prev) => (prev - 1 + team.length) % team.length)}
+                aria-label="Miembro anterior"
+              >
+                <FiChevronLeft />
+              </button>
+              <button
+                type="button"
+                className="carousel-control-btn"
+                onClick={() => setMemberIndex((prev) => (prev + 1) % team.length)}
+                aria-label="Siguiente miembro"
+              >
+                <FiChevronRight />
+              </button>
             </div>
-            <p>{person.role}</p>
-            <a href={`mailto:${person.email}`}>{person.email}</a>
-          </article>
-        ))}
+          </div>
+        )}
+
+        <div className="footer-team">
+          {visibleTeam.map((person) => (
+            <article className="person-card" key={person.email}>
+              <div className="person-heading">
+                <img className="person-avatar" src={person.image} alt={person.name} />
+                <div>
+                  <h3>{person.name}</h3>
+                  <button
+                    className="about-button"
+                    disabled={!person.about}
+                    type="button"
+                    onClick={() => setSelectedPerson(person)}
+                  >
+                    Sobre mi
+                  </button>
+                </div>
+              </div>
+              <p>{person.role}</p>
+              <a href={`mailto:${person.email}`}>{person.email}</a>
+            </article>
+          ))}
+        </div>
       </section>
 
       <Modal

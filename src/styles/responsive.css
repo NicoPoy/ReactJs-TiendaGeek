@@ -108,26 +108,31 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .cart-item {
-    grid-template-columns: 86px 1fr;
-  }
 
-  .cart-item img {
-    width: 86px;
-  }
-
-  .cart-item .button {
-    grid-column: 1 / -1;
-  }
-
-  .cart-summary {
-    align-items: stretch;
-    flex-direction: column;
-  }
 
   .pagination-bar {
-    align-items: stretch;
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .pagination-bar .button {
+    flex: 1;
+    max-width: 120px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    margin: 0;
+  }
+
+  .pagination-bar span {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    text-align: center;
+    flex: 1;
   }
 
   .form-grid,

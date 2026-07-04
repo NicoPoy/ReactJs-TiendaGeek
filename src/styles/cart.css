@@ -674,6 +674,22 @@
   .subtotal-box {
     align-items: flex-start;
   }
+
+  .purchase-confirmation-header {
+    flex-direction: column-reverse;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .purchase-header-text {
+    align-items: center;
+  }
+
+  .purchase-header-logo {
+    width: 140px;
+    height: 140px;
+    padding: 12px;
+  }
 }
 
 @media (max-width: 540px) {
@@ -696,5 +712,9 @@
   
   .cart-item-meta {
     justify-content: center;
+  }
+
+  .purchase-info {
+    grid-template-columns: 1fr;
   }
 }
