@@ -9,6 +9,7 @@ function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  // isMobile determina si el viewport es movil para adaptar el carrusel de novedades.
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -38,6 +39,7 @@ function Home() {
   }, [])
 
   const nextProducts = () => {
+    // step define el paso del carrusel: 1 elemento en movil, 3 en pantallas grandes.
     const step = isMobile ? 1 : 3
     if (currentIndex + step < featuredProducts.length) {
       setCurrentIndex((prev) => prev + step)
@@ -48,6 +50,7 @@ function Home() {
   }
 
   const prevProducts = () => {
+    // step define el paso del carrusel: 1 elemento en movil, 3 en pantallas grandes.
     const step = isMobile ? 1 : 3
     if (currentIndex - step >= 0) {
       setCurrentIndex((prev) => prev - step)

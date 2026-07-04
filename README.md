@@ -95,87 +95,6 @@ Luego abrir la URL que muestra la terminal, normalmente:
 http://localhost:5173
 ```
 
-## Configurar Firebase
-
-1. Crear un proyecto en Firebase.
-2. Crear una app web dentro del proyecto.
-3. Activar Authentication con proveedor Email/Password.
-4. Crear una base de datos Firestore.
-5. Copiar .env.example como .env.
-6. Completar .env con los datos reales del proyecto.
-
-
-Variables esperadas:
-
-```bash
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-```
-
-Firebase debe estar configurado para usar autenticacion y catalogo. Las imagenes cargadas desde el panel se comprimen y se guardan en Firestore como data URL para no depender de Firebase Storage.
-
-## Reglas sugeridas de Firestore
-
-Estas reglas permiten leer el catalogo publicamente y restringen escritura a
-admins. Los usuarios nuevos quedan identificados en `users/{uid}` con
-`role: "client"`. Las cuentas viejas que todavia no tengan documento de perfil
-se consideran admins para no bloquear el usuario creado antes de esta regla:
-
-```txt
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function userProfilePath() {
-      return /databases/$(database)/documents/users/$(request.auth.uid);
-    }
-
-    function isAdmin() {
-      return isSignedIn()
-        && (!exists(userProfilePath())
-          || get(userProfilePath()).data.role == "admin");
-    }
-
-    match /products/{productId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /categories/{categoryId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /users/{userId} {
-      allow read: if isSignedIn() && request.auth.uid == userId;
-      allow create: if isSignedIn()
-        && request.auth.uid == userId
-        && request.resource.data.role == "client";
-      allow update: if false;
-      allow delete: if false;
-    }
-  }
-}
-```
-
-
-## Cargar productos iniciales
-
-1. Ejecutar el proyecto.
-2. Ir a `/login`.
-3. Crear una cuenta o ingresar con un usuario existente.
-4. Entrar a `/admin`.
-5. Presionar `Cargar JSON inicial`.
-
-Ese boton toma los productos de `public/productos.json` y los guarda en la coleccion `products` de Firestore.
-
 ## Scripts disponibles
 
 ```bash
@@ -191,22 +110,6 @@ npm run build
 ```
 
 El build debe completarse sin errores antes de entregar o desplegar.
-
-## Imagenes y datos
-
-- Las imagenes viven en `public/images`.
-- El catalogo base vive en `public/productos.json`.
-- Las rutas de imagen se guardan como `/images/nombre-del-archivo.jpg`.
-
-## Deploy
-
-Para publicar en Vercel o Netlify:
-
-1. Subir el repositorio a GitHub.
-2. Crear un proyecto en Vercel/Netlify.
-3. Configurar las mismas variables de entorno del `.env`.
-4. Ejecutar deploy.
-5. Probar rutas, login, catalogo, carrito y panel admin en la URL publicada.
 
 ## Checklist de entrega final
 
@@ -225,15 +128,23 @@ Para publicar en Vercel o Netlify:
 - [x] CSS dividido por responsabilidad.
 - [x] Firebase real configurado en el entorno de entrega.
 - [x] Chequear los roles de usuarios y admin, que no se creen admins
-- [ ] Deploy publicado y probado.
+- [x] Deploy publicado y probado.
 
+## Enlaces del Proyecto
+- **Repositorio GitHub**: https://github.com/NicoPoy/ReactJs-TiendaGeek/tree/main
+- **Sitio en Producción (Deploy)**: https://react-js-tienda-geek.vercel.app/
 
-## Credenciales
-- VITE_FIREBASE_API_KEY="AIzaSyB7EFBB4Zn_IJ7_mjm8dBZhBpymek1zOVg"
-- VITE_FIREBASE_AUTH_DOMAIN="curso-react-67e7b.firebaseapp.com"
-- VITE_FIREBASE_PROJECT_ID="curso-react-67e7b"
-- VITE_FIREBASE_MESSAGING_SENDER_ID="393314399948"
-- VITE_FIREBASE_APP_ID="1:393314399948:web:13ff01163203059a4df469"
+## Credenciales de Acceso para Corrección
+- **Usuario Administrador**:
+  - Email: `admin@tiendageek.com`
+  - Contraseña: `admin-tienda-geek-2026`
+- **Usuario Cliente**:
+  - Email: `user@tiendageek.com`
+  - Contraseña: `user-tienda`
 
-## Usuarios
-- mail: admin@tiendageek.com pass: admin-tienda-geek-2026
+## Configuración de Firebase
+- `VITE_FIREBASE_API_KEY="AIzaSyB7EFBB4Zn_IJ7_mjm8dBZhBpymek1zOVg"`
+- `VITE_FIREBASE_AUTH_DOMAIN="curso-react-67e7b.firebaseapp.com"`
+- `VITE_FIREBASE_PROJECT_ID="curso-react-67e7b"`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID="393314399948"`
+- `VITE_FIREBASE_APP_ID="1:393314399948:web:13ff01163203059a4df469"`

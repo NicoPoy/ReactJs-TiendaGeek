@@ -37,7 +37,9 @@ const team = [
 function Footer() {
   // selectedPerson define si el modal "Sobre mi" esta abierto y que datos muestra.
   const [selectedPerson, setSelectedPerson] = useState(null)
+  // isMobile detecta si el cliente navega en un dispositivo movil para activar el carrusel.
   const [isMobile, setIsMobile] = useState(false)
+  // memberIndex controla que integrante del equipo se muestra en el slider movil.
   const [memberIndex, setMemberIndex] = useState(0)
 
   useEffect(() => {
@@ -51,6 +53,7 @@ function Footer() {
     return () => media.removeEventListener('change', listener)
   }, [])
 
+  // visibleTeam contiene todos los integrantes en desktop o solo el actual en mobile.
   const visibleTeam = isMobile ? [team[memberIndex]] : team
 
   return (
